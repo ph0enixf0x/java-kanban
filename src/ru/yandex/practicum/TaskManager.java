@@ -7,14 +7,14 @@ import java.util.HashMap;
 public class TaskManager {
     private int taskCounter;
     private HashMap<Integer, Task> tasks;
-    private HashMap<Integer, SubTask> subtasks;
+    private HashMap<Integer, SubTask> subTasks;
     private HashMap<Integer, Epic> epics;
 
     public TaskManager() {
         this.taskCounter = 1;
-        this.tasks = new HashMap<>();
-        this.subtasks = new HashMap<>();
-        this.epics = new HashMap<>();
+        tasks = new HashMap<>();
+        subTasks = new HashMap<>();
+        epics = new HashMap<>();
     }
 
     public int getTaskCounter() {
@@ -25,16 +25,28 @@ public class TaskManager {
         return tasks;
     }
 
-    public HashMap<Integer, SubTask> getSubtasks() {
-        return subtasks;
+    public HashMap<Integer, SubTask> getSubTasks() {
+        return subTasks;
     }
 
     public HashMap<Integer, Epic> getEpics() {
         return epics;
     }
 
-    public void increaseTaskCounter() {
+    private void increaseTaskCounter() {
         taskCounter += 1;
+    }
+
+    public void deleteTasks() {
+        tasks = new HashMap<>();
+    }
+
+    public void deleteEpics() {
+        epics = new HashMap<>();
+    }
+
+    public void deleteSubTasks() {
+        subTasks = new HashMap<>();
     }
 
     public void createTask(Task task) {
@@ -48,7 +60,7 @@ public class TaskManager {
     }
 
     public void createSubTask(SubTask subTask) {
-        subtasks.put(subTask.getId(), subTask);
+        subTasks.put(subTask.getId(), subTask);
         increaseTaskCounter();
         epics.get(subTask.getEpicId()).addSubTask(subTask.getId());
     }

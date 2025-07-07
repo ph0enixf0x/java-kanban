@@ -5,8 +5,6 @@ import ru.yandex.practicum.tasks.SubTask;
 import ru.yandex.practicum.tasks.Task;
 import ru.yandex.practicum.tasks.TaskStatus;
 
-import java.util.ArrayList;
-
 public class Main {
 
     public static void main(String[] args) {
@@ -22,6 +20,14 @@ public class Main {
 
         System.out.println(manager.getTasks());
         System.out.println(manager.getEpics());
-        System.out.println(manager.getSubtasks());
+        System.out.println(manager.getSubTasks());
+
+        manager.deleteTasks();
+        manager.deleteEpics();
+        manager.deleteSubTasks();
+
+        System.out.println(manager.getTasks());
+        System.out.println(manager.getEpics());
+        System.out.println(manager.getSubTasks());
     }
 }
