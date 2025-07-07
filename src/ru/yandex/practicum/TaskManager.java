@@ -84,6 +84,7 @@ public class TaskManager {
         int taskId = task.getId();
         if(isExistingTask("Task", taskId)) {
             System.out.println("Такая задача уже существует");
+            return;
         }
         tasks.put(taskId, task);
         increaseTaskCounter();
@@ -93,6 +94,7 @@ public class TaskManager {
         int epicId = epic.getId();
         if(isExistingTask("Epic", epicId)) {
             System.out.println("Такой эпик уже существует");
+            return;
         }
         epics.put(epicId, epic);
         increaseTaskCounter();
@@ -102,6 +104,10 @@ public class TaskManager {
         int subTaskId = subTask.getId();
         if(isExistingTask("SubTask", subTaskId)) {
             System.out.println("Такая подзадача уже существует");
+            return;
+        } else if(!isExistingTask("Epic", subTask.getEpicId())) {
+            System.out.println("Указанного в подзадаче эпика не существует");
+            return;
         }
         subTasks.put(subTaskId, subTask);
         increaseTaskCounter();
@@ -133,7 +139,6 @@ public class TaskManager {
             return;
         }
         subTasks.put(subTaskId, subTask);
-        epics.get(subTask.getEpicId()).addSubTask(subTaskId);
     }
 
     public void deleteTaskById(int id) {
@@ -145,7 +150,10 @@ public class TaskManager {
     }
 
     public void deleteSubTaskById(int id) {
-        if(getSubTaskById(id) != null) subTasks.remove(id);
+        if(getSubTaskById(id) != null) {
+            epics.get(subTasks.get(id).getEpicId()).removeSubTask(id);
+            subTasks.remove(id);
+        }
     }
 
     public ArrayList<SubTask> getEpicSubTasks(int id) {

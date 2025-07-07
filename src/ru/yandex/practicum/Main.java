@@ -52,6 +52,9 @@ public class Main {
         manager.createSubTask(new SubTask(manager.getTaskCounter(), "Подтаска второго эпика",
                 "Тестовая подтаска для второго эпика, не на что смотреть", TaskStatus.NEW,
                 (Integer) manager.getEpics().keySet().toArray()[0]));
+        manager.createSubTask(new SubTask(manager.getTaskCounter(), "Подтаска второго эпика",
+                "Тестовая подтаска для второго эпика, не на что смотреть", TaskStatus.NEW,
+                0));
         manager.createEpic(new Epic(manager.getTaskCounter(), "Это третий эпик",
                 "В этом эпике содержатся разные сабтаски", TaskStatus.NEW));
 
@@ -71,14 +74,25 @@ public class Main {
 
         System.out.println("-".repeat(5) + " Обновляем таски");
 
-        manager.updateTask(new Task(4, "Уточненное название таски",
-                "Это название таски было уточнено и она теперь в работе", TaskStatus.IN_PROGRESS));
+        Task updatedTask = manager.getTaskById(4);
+        updatedTask.setName("Это новое название для таски");
+        updatedTask.setDescription("А это новое описание того о чем таска");
+        updatedTask.setStatus(TaskStatus.IN_PROGRESS);
+        manager.updateTask(updatedTask);
+
         manager.updateTask(new Task(6, "Несуществующая таска",
                 "Эта таска не должна попасть в список тасок", TaskStatus.IN_PROGRESS));
-        manager.updateEpic(new Epic(6, "Второй эпик",
-                "Новое описание для второго эпика", TaskStatus.NEW));
-        manager.updateSubTask(new SubTask(7, "Первая сабтаска второго эпика",
-                "Новое описание сабтаски второго эпика", TaskStatus.IN_PROGRESS, 6));
+
+        Epic updatedEpic = manager.getEpicById(6);
+        updatedEpic.setName("Второй эпик");
+        updatedEpic.setDescription("Новое описание для второго эпика");
+        manager.updateEpic(updatedEpic);
+
+        SubTask updatedSubTask = manager.getSubTaskById(7);
+        updatedSubTask.setName("Первая сабтаска второго эпика");
+        updatedSubTask.setDescription("Новое описание сабтаски второго эпика");
+        updatedSubTask.setStatus(TaskStatus.IN_PROGRESS);
+        manager.updateSubTask(updatedSubTask);
 
         System.out.println(manager.getTasks());
         System.out.println(manager.getEpics());
