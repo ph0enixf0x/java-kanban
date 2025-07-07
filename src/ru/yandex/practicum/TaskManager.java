@@ -49,6 +49,36 @@ public class TaskManager {
         subTasks = new HashMap<>();
     }
 
+    public Task getTaskById(int id) {
+        if(isExistingTask("Task", id)) return tasks.get(id);
+        System.out.println("Несуществующий идентификатор задачи");
+        return null;
+    }
+
+    public Epic getEpicById(int id) {
+        if(isExistingTask("Epic", id)) return epics.get(id);
+        System.out.println("Несуществующий идентификатор эпика");
+        return null;
+    }
+
+    public SubTask getSubTaskById(int id) {
+        if(isExistingTask("SubTask", id)) return subTasks.get(id);
+        System.out.println("Несуществующий идентификатор подзадачи");
+        return null;
+    }
+
+    private boolean isExistingTask(String type, int id) {
+        return switch (type) {
+            case "Task" -> tasks.containsKey(id);
+            case "Epic" -> epics.containsKey(id);
+            case "SubTask" -> subTasks.containsKey(id);
+            default -> {
+                System.out.println("Неизвестный тип задачи");
+                yield false;
+            }
+        };
+    }
+
     public void createTask(Task task) {
         tasks.put(task.getId(), task);
         increaseTaskCounter();

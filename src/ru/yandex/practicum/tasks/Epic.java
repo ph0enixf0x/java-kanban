@@ -21,11 +21,11 @@ public class Epic extends Task {
     @Override
     public String toString() {
         return "Epic{" +
-                "subtasks=" + subtasksIds +
-                ", id=" + getId() +
+                "id=" + getId() +
                 ", name='" + getName() + '\'' +
                 ", description='" + getDescription() + '\'' +
                 ", status=" + getStatus() +
+                ", subtasks=" + subtasksIds +
                 '}';
     }
 }
