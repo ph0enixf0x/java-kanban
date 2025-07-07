@@ -44,6 +44,7 @@ public class TaskManager {
 
     public void deleteEpics() {
         epics = new HashMap<>();
+        subTasks = new HashMap<>();
     }
 
     public void deleteSubTasks() {
@@ -146,7 +147,13 @@ public class TaskManager {
     }
 
     public void deleteEpicById(int id) {
-        if(getEpicById(id) != null) epics.remove(id);
+        Epic epic = getEpicById(id);
+        if(epic != null) {
+            for (int subtaskId : epic.getSubtasksIds()) {
+                subTasks.remove(subtaskId);
+            }
+            epics.remove(id);
+        }
     }
 
     public void deleteSubTaskById(int id) {

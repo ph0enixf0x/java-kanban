@@ -112,5 +112,11 @@ public class Main {
 
         System.out.println(manager.getEpicSubTasks(6));
 
+        System.out.println("-".repeat(5) + " Удаляем эпик с сабтасками");
+
+        manager.deleteEpicById(6);
+        System.out.println(manager.getEpics());
+        System.out.println(manager.getSubTasks());
+
     }
 }
