@@ -80,18 +80,33 @@ public class TaskManager {
     }
 
     public void createTask(Task task) {
-        tasks.put(task.getId(), task);
-        increaseTaskCounter();
+        int taskId = task.getId();
+        if(!isExistingTask("Task", taskId)) {
+            tasks.put(taskId, task);
+            increaseTaskCounter();
+        } else {
+            System.out.println("Такая задача уже существует");
+        }
     }
 
     public void createEpic(Epic epic) {
-        epics.put(epic.getId(), epic);
-        increaseTaskCounter();
+        int epicId = epic.getId();
+        if(!isExistingTask("Epic", epicId)) {
+            epics.put(epicId, epic);
+            increaseTaskCounter();
+        } else {
+            System.out.println("Такой эпик уже существует");
+        }
     }
 
     public void createSubTask(SubTask subTask) {
-        subTasks.put(subTask.getId(), subTask);
-        increaseTaskCounter();
-        epics.get(subTask.getEpicId()).addSubTask(subTask.getId());
+        int subTaskId = subTask.getId();
+        if(!isExistingTask("SubTask", subTaskId)) {
+            subTasks.put(subTaskId, subTask);
+            increaseTaskCounter();
+            epics.get(subTask.getEpicId()).addSubTask(subTaskId);
+        } else {
+            System.out.println("Такая подзадача уже существует");
+        }
     }
 }
