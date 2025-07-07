@@ -2,6 +2,7 @@ package ru.yandex.practicum;
 
 import ru.yandex.practicum.tasks.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TaskManager {
@@ -132,6 +133,7 @@ public class TaskManager {
             return;
         }
         subTasks.put(subTaskId, subTask);
+        epics.get(subTask.getEpicId()).addSubTask(subTaskId);
     }
 
     public void deleteTaskById(int id) {
@@ -144,5 +146,19 @@ public class TaskManager {
 
     public void deleteSubTaskById(int id) {
         if(getSubTaskById(id) != null) subTasks.remove(id);
+    }
+
+    public ArrayList<SubTask> getEpicSubTasks(int id) {
+        Epic epic = getEpicById(id);
+        ArrayList<SubTask> result = new ArrayList<>();
+        if(epic != null) {
+            ArrayList<Integer> subtaskIds = epic.getSubtasksIds();
+            for (int subtaskId : subtaskIds) {
+                result.add(subTasks.get(subtaskId));
+            }
+            return result;
+        }
+        System.out.println("Такого эпика не существует");
+        return null;
     }
 }

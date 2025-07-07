@@ -52,6 +52,8 @@ public class Main {
         manager.createSubTask(new SubTask(manager.getTaskCounter(), "Подтаска второго эпика",
                 "Тестовая подтаска для второго эпика, не на что смотреть", TaskStatus.NEW,
                 (Integer) manager.getEpics().keySet().toArray()[0]));
+        manager.createEpic(new Epic(manager.getTaskCounter(), "Это третий эпик",
+                "В этом эпике содержатся разные сабтаски", TaskStatus.NEW));
 
         System.out.println(manager.getTasks());
         System.out.println(manager.getEpics());
@@ -76,7 +78,7 @@ public class Main {
         manager.updateEpic(new Epic(6, "Второй эпик",
                 "Новое описание для второго эпика", TaskStatus.NEW));
         manager.updateSubTask(new SubTask(7, "Первая сабтаска второго эпика",
-                "Новое описание сабтаски второго эпика", TaskStatus.IN_PROGRESS, (Integer) manager.getEpics().keySet().toArray()[0]));
+                "Новое описание сабтаски второго эпика", TaskStatus.IN_PROGRESS, 6));
 
         System.out.println(manager.getTasks());
         System.out.println(manager.getEpics());
@@ -85,11 +87,16 @@ public class Main {
         System.out.println("-".repeat(5) + " Удаляем таски по идентификаторам");
 
         manager.deleteTaskById(5);
-        manager.deleteEpicById(6);
+        manager.deleteEpicById(10);
         manager.deleteSubTaskById(9);
 
         System.out.println(manager.getTasks());
         System.out.println(manager.getEpics());
         System.out.println(manager.getSubTasks());
+
+        System.out.println("-".repeat(5) + " Получаем все таски определенного эпика");
+
+        System.out.println(manager.getEpicSubTasks(6));
+
     }
 }
