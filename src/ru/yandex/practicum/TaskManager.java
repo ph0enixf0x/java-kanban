@@ -50,6 +50,6 @@ public class TaskManager {
     public void createSubTask(SubTask subTask) {
         subtasks.put(subTask.getId(), subTask);
         increaseTaskCounter();
-        epics.get(subTask.getEpicId()).addSubTask(subTask);
+        epics.get(subTask.getEpicId()).addSubTask(subTask.getId());
     }
 }
