@@ -11,6 +11,8 @@ public class Main {
 
         TaskManager manager = new TaskManager();
 
+        System.out.println("-".repeat(5) + " Создаем первые таски");
+
         manager.createTask(new Task(manager.getTaskCounter(), "Первая таска",
                 "Это первая тестовая таска", TaskStatus.NEW));
         manager.createEpic(new Epic(manager.getTaskCounter(), "Это первый эпик",
@@ -23,6 +25,8 @@ public class Main {
         System.out.println(manager.getEpics());
         System.out.println(manager.getSubTasks());
 
+        System.out.println("-".repeat(5) + " Удаляем все таски");
+
         manager.deleteTasks();
         manager.deleteEpics();
         manager.deleteSubTasks();
@@ -30,6 +34,8 @@ public class Main {
         System.out.println(manager.getTasks());
         System.out.println(manager.getEpics());
         System.out.println(manager.getSubTasks());
+
+        System.out.println("-".repeat(5) + " Создаем дополнительные таски");
 
         manager.createTask(new Task(manager.getTaskCounter(), "Вторая таска",
                 "Это вторая тестовая таска", TaskStatus.NEW));
@@ -51,6 +57,8 @@ public class Main {
         System.out.println(manager.getEpics());
         System.out.println(manager.getSubTasks());
 
+        System.out.println("-".repeat(5) + " Получаем таски по идентификаторам");
+
         System.out.println(manager.getTaskById(4));
         System.out.println(manager.getTaskById(5));
         System.out.println(manager.getEpicById(6));
@@ -58,6 +66,8 @@ public class Main {
         System.out.println(manager.getSubTaskById(7));
         System.out.println(manager.getSubTaskById(9));
         System.out.println(manager.getSubTaskById(10));
+
+        System.out.println("-".repeat(5) + " Обновляем таски");
 
         manager.updateTask(new Task(4, "Уточненное название таски",
                 "Это название таски было уточнено и она теперь в работе", TaskStatus.IN_PROGRESS));
@@ -67,6 +77,16 @@ public class Main {
                 "Новое описание для второго эпика", TaskStatus.NEW));
         manager.updateSubTask(new SubTask(7, "Первая сабтаска второго эпика",
                 "Новое описание сабтаски второго эпика", TaskStatus.IN_PROGRESS, (Integer) manager.getEpics().keySet().toArray()[0]));
+
+        System.out.println(manager.getTasks());
+        System.out.println(manager.getEpics());
+        System.out.println(manager.getSubTasks());
+
+        System.out.println("-".repeat(5) + " Удаляем таски по идентификаторам");
+
+        manager.deleteTaskById(5);
+        manager.deleteEpicById(6);
+        manager.deleteSubTaskById(9);
 
         System.out.println(manager.getTasks());
         System.out.println(manager.getEpics());

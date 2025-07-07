@@ -133,4 +133,16 @@ public class TaskManager {
         }
         subTasks.put(subTaskId, subTask);
     }
+
+    public void deleteTaskById(int id) {
+        if(getTaskById(id) != null) tasks.remove(id);
+    }
+
+    public void deleteEpicById(int id) {
+        if(getEpicById(id) != null) epics.remove(id);
+    }
+
+    public void deleteSubTaskById(int id) {
+        if(getSubTaskById(id) != null) subTasks.remove(id);
+    }
 }
