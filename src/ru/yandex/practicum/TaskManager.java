@@ -81,32 +81,56 @@ public class TaskManager {
 
     public void createTask(Task task) {
         int taskId = task.getId();
-        if(!isExistingTask("Task", taskId)) {
-            tasks.put(taskId, task);
-            increaseTaskCounter();
-        } else {
+        if(isExistingTask("Task", taskId)) {
             System.out.println("Такая задача уже существует");
         }
+        tasks.put(taskId, task);
+        increaseTaskCounter();
     }
 
     public void createEpic(Epic epic) {
         int epicId = epic.getId();
-        if(!isExistingTask("Epic", epicId)) {
-            epics.put(epicId, epic);
-            increaseTaskCounter();
-        } else {
+        if(isExistingTask("Epic", epicId)) {
             System.out.println("Такой эпик уже существует");
         }
+        epics.put(epicId, epic);
+        increaseTaskCounter();
     }
 
     public void createSubTask(SubTask subTask) {
         int subTaskId = subTask.getId();
-        if(!isExistingTask("SubTask", subTaskId)) {
-            subTasks.put(subTaskId, subTask);
-            increaseTaskCounter();
-            epics.get(subTask.getEpicId()).addSubTask(subTaskId);
-        } else {
+        if(isExistingTask("SubTask", subTaskId)) {
             System.out.println("Такая подзадача уже существует");
         }
+        subTasks.put(subTaskId, subTask);
+        increaseTaskCounter();
+        epics.get(subTask.getEpicId()).addSubTask(subTaskId);
+    }
+
+    public void updateTask(Task task) {
+        int taskId = task.getId();
+        if(!isExistingTask("Task", taskId)) {
+            System.out.println("Несуществующий идентификатор задачи");
+            return;
+        }
+        tasks.put(taskId, task);
+    }
+
+    public void updateEpic(Epic epic) {
+        int epicId = epic.getId();
+        if(!isExistingTask("Epic", epicId)) {
+            System.out.println("Несуществующий идентификатор эпика");
+            return;
+        }
+        epics.put(epicId, epic);
+    }
+
+    public void updateSubTask(SubTask subTask) {
+        int subTaskId = subTask.getId();
+        if(!isExistingTask("SubTask", subTaskId)) {
+            System.out.println("Несуществующий идентификатор подзадачи");
+            return;
+        }
+        subTasks.put(subTaskId, subTask);
     }
 }

@@ -16,7 +16,8 @@ public class Main {
         manager.createEpic(new Epic(manager.getTaskCounter(), "Это первый эпик",
                 "В этом эпике содержатся разные сабтаски", TaskStatus.NEW));
         manager.createSubTask(new SubTask(manager.getTaskCounter(), "Подтаска первого эпика",
-                "Тестовая подтаска для первого эпика, не на что смотреть", TaskStatus.NEW, (Integer) manager.getEpics().keySet().toArray()[0])); // TODO: переделать получение id
+                "Тестовая подтаска для первого эпика, не на что смотреть", TaskStatus.NEW,
+                (Integer) manager.getEpics().keySet().toArray()[0]));
 
         System.out.println(manager.getTasks());
         System.out.println(manager.getEpics());
@@ -37,11 +38,14 @@ public class Main {
         manager.createEpic(new Epic(manager.getTaskCounter(), "Это второй эпик",
                 "В этом эпике содержатся разные сабтаски", TaskStatus.NEW));
         manager.createSubTask(new SubTask(manager.getTaskCounter(), "Подтаска второго эпика",
-                "Тестовая подтаска для второго эпика, не на что смотреть", TaskStatus.NEW, (Integer) manager.getEpics().keySet().toArray()[0]));
+                "Тестовая подтаска для второго эпика, не на что смотреть", TaskStatus.NEW,
+                (Integer) manager.getEpics().keySet().toArray()[0]));
         manager.createSubTask(new SubTask(manager.getTaskCounter(), "Подтаска второго эпика",
-                "Тестовая подтаска для второго эпика, не на что смотреть", TaskStatus.NEW, (Integer) manager.getEpics().keySet().toArray()[0]));
+                "Тестовая подтаска для второго эпика, не на что смотреть", TaskStatus.NEW,
+                (Integer) manager.getEpics().keySet().toArray()[0]));
         manager.createSubTask(new SubTask(manager.getTaskCounter(), "Подтаска второго эпика",
-                "Тестовая подтаска для второго эпика, не на что смотреть", TaskStatus.NEW, (Integer) manager.getEpics().keySet().toArray()[0]));
+                "Тестовая подтаска для второго эпика, не на что смотреть", TaskStatus.NEW,
+                (Integer) manager.getEpics().keySet().toArray()[0]));
 
         System.out.println(manager.getTasks());
         System.out.println(manager.getEpics());
@@ -54,5 +58,18 @@ public class Main {
         System.out.println(manager.getSubTaskById(7));
         System.out.println(manager.getSubTaskById(9));
         System.out.println(manager.getSubTaskById(10));
+
+        manager.updateTask(new Task(4, "Уточненное название таски",
+                "Это название таски было уточнено и она теперь в работе", TaskStatus.IN_PROGRESS));
+        manager.updateTask(new Task(6, "Несуществующая таска",
+                "Эта таска не должна попасть в список тасок", TaskStatus.IN_PROGRESS));
+        manager.updateEpic(new Epic(6, "Второй эпик",
+                "Новое описание для второго эпика", TaskStatus.NEW));
+        manager.updateSubTask(new SubTask(7, "Первая сабтаска второго эпика",
+                "Новое описание сабтаски второго эпика", TaskStatus.IN_PROGRESS, (Integer) manager.getEpics().keySet().toArray()[0]));
+
+        System.out.println(manager.getTasks());
+        System.out.println(manager.getEpics());
+        System.out.println(manager.getSubTasks());
     }
 }
