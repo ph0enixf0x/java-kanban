@@ -14,11 +14,11 @@ public class Main {
         System.out.println("-".repeat(5) + " Создаем первые таски");
 
         manager.createTask(new Task(manager.getTaskCounter(), "Первая таска",
-                "Это первая тестовая таска", TaskStatus.NEW));
+                "Это первая тестовая таска"));
         manager.createEpic(new Epic(manager.getTaskCounter(), "Это первый эпик",
                 "В этом эпике содержатся разные сабтаски"));
         manager.createSubTask(new SubTask(manager.getTaskCounter(), "Подтаска первого эпика",
-                "Тестовая подтаска для первого эпика, не на что смотреть", TaskStatus.NEW,
+                "Тестовая подтаска для первого эпика, не на что смотреть",
                 (Integer) manager.getEpics().keySet().toArray()[0]));
 
         System.out.println(manager.getTasks());
@@ -38,22 +38,22 @@ public class Main {
         System.out.println("-".repeat(5) + " Создаем дополнительные таски");
 
         manager.createTask(new Task(manager.getTaskCounter(), "Вторая таска",
-                "Это вторая тестовая таска", TaskStatus.NEW));
+                "Это вторая тестовая таска"));
         manager.createTask(new Task(manager.getTaskCounter(), "третья таска",
-                "Это третья тестовая таска", TaskStatus.NEW));
+                "Это третья тестовая таска"));
         manager.createEpic(new Epic(manager.getTaskCounter(), "Это второй эпик",
                 "В этом эпике содержатся разные сабтаски"));
         manager.createSubTask(new SubTask(manager.getTaskCounter(), "Подтаска второго эпика",
-                "Тестовая подтаска для второго эпика, не на что смотреть", TaskStatus.NEW,
+                "Тестовая подтаска для второго эпика, не на что смотреть",
                 (Integer) manager.getEpics().keySet().toArray()[0]));
         manager.createSubTask(new SubTask(manager.getTaskCounter(), "Подтаска второго эпика",
-                "Тестовая подтаска для второго эпика, не на что смотреть", TaskStatus.NEW,
+                "Тестовая подтаска для второго эпика, не на что смотреть",
                 (Integer) manager.getEpics().keySet().toArray()[0]));
         manager.createSubTask(new SubTask(manager.getTaskCounter(), "Подтаска второго эпика",
-                "Тестовая подтаска для второго эпика, не на что смотреть", TaskStatus.NEW,
+                "Тестовая подтаска для второго эпика, не на что смотреть",
                 (Integer) manager.getEpics().keySet().toArray()[0]));
         manager.createSubTask(new SubTask(manager.getTaskCounter(), "Подтаска второго эпика",
-                "Тестовая подтаска для второго эпика, не на что смотреть", TaskStatus.NEW,
+                "Тестовая подтаска для второго эпика, не на что смотреть",
                 0));
         manager.createEpic(new Epic(manager.getTaskCounter(), "Это третий эпик",
                 "В этом эпике содержатся разные сабтаски"));
@@ -81,7 +81,7 @@ public class Main {
         manager.updateTask(updatedTask);
 
         manager.updateTask(new Task(6, "Несуществующая таска",
-                "Эта таска не должна попасть в список тасок", TaskStatus.IN_PROGRESS));
+                "Эта таска не должна попасть в список тасок"));
 
         Epic updatedEpic = manager.getEpicById(6);
         updatedEpic.setName("Второй эпик");
@@ -122,13 +122,13 @@ public class Main {
         manager.createEpic(new Epic(manager.getTaskCounter(), "Статусный эпик",
                 "Это эпик для тестирования смены статусов"));
         manager.createSubTask(new SubTask(manager.getTaskCounter(), "Подтаска 1",
-                "Эта подтаска 1", TaskStatus.NEW,
+                "Эта подтаска 1",
                 11));
         manager.createSubTask(new SubTask(manager.getTaskCounter(), "Подтаска 2",
-                "Эта подтаска 2", TaskStatus.NEW,
+                "Эта подтаска 2",
                 11));
         manager.createSubTask(new SubTask(manager.getTaskCounter(), "Подтаска 3",
-                "Эта подтаска 3", TaskStatus.NEW,
+                "Эта подтаска 3",
                 11));
         System.out.println(manager.getEpics());
         updatedSubTask = manager.getSubTaskById(12);
