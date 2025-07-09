@@ -16,20 +16,16 @@ public class TaskManager {
         epics = new HashMap<>();
     }
 
-    public int getTaskCounter() {
-        return taskCounter;
+    public ArrayList<Task> getTasks() {
+        return new ArrayList<>(tasks.values());
     }
 
-    public HashMap<Integer, Task> getTasks() {
-        return tasks;
+    public ArrayList<SubTask> getSubTasks() {
+        return new ArrayList<>(subTasks.values());
     }
 
-    public HashMap<Integer, SubTask> getSubTasks() {
-        return subTasks;
-    }
-
-    public HashMap<Integer, Epic> getEpics() {
-        return epics;
+    public ArrayList<Epic> getEpics() {
+        return new ArrayList<>(epics.values());
     }
 
     private void increaseTaskCounter() {
@@ -114,8 +110,9 @@ public class TaskManager {
             System.out.println("Эпика с идентификатором " + epicId + " не существует");
             return;
         }
-        epics.put(epicId, epic);
-        updateEpicStatus(epicId);
+        Epic updatedEpic = epics.get(epicId);
+        updatedEpic.setName(epic.getName());
+        updatedEpic.setDescription(epic.getDescription());
     }
 
     public void updateSubTask(SubTask subTask) {
