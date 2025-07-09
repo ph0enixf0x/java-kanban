@@ -3,10 +3,10 @@ package ru.yandex.practicum.tasks;
 import java.util.Objects;
 
 public class Task {
-    private final int id;
-    private String name;
-    private String description;
-    private TaskStatus status;
+    protected int id;
+    protected String name;
+    protected String description;
+    protected TaskStatus status;
 
     public Task(int id, String name, String description) {
         this.id = id;
@@ -29,6 +29,10 @@ public class Task {
 
     public TaskStatus getStatus() {
         return status;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setStatus(TaskStatus status) {
