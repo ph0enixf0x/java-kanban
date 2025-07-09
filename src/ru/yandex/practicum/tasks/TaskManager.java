@@ -1,6 +1,4 @@
-package ru.yandex.practicum;
-
-import ru.yandex.practicum.tasks.*;
+package ru.yandex.practicum.tasks;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,40 +71,32 @@ public class TaskManager {
         return null;
     }
 
-    public void createTask(Task task) {
-        int taskId = task.getId();
-        if (isExistingTask("Task", taskId)) {
-            System.out.println("Задача с идентификатором " + taskId + " уже существует");
-            return;
-        }
-        tasks.put(taskId, task);
+    public int createTask(Task task) {
+        task.setId(taskCounter);
+        tasks.put(taskCounter, task);
         increaseTaskCounter();
+        return task.getId();
     }
 
-    public void createEpic(Epic epic) {
-        int epicId = epic.getId();
-        if (isExistingTask("Epic", epicId)) {
-            System.out.println("Эпик с идентификатором " + epicId + " уже существует");
-            return;
-        }
-        epics.put(epicId, epic);
+    public int createEpic(Epic epic) {
+        epic.setId(taskCounter);
+        epics.put(taskCounter, epic);
         increaseTaskCounter();
+        return epic.getId();
     }
 
-    public void createSubTask(SubTask subTask) {
-        int subTaskId = subTask.getId();
+    public int createSubTask(SubTask subTask) {
+        subTask.setId(taskCounter);
         int epicId = subTask.getEpicId();
-        if (isExistingTask("SubTask", subTaskId)) {
-            System.out.println("Подзадача с идентификатором " + subTaskId + " уже существует");
-            return;
-        } else if (!isExistingTask("Epic", epicId)) {
+        if (!isExistingTask("Epic", epicId)) {
             System.out.println("Эпика с идентификатором " + epicId + " указанным в подзадаче не существует");
-            return;
+            return 0;
         }
-        subTasks.put(subTaskId, subTask);
-        increaseTaskCounter();
-        epics.get(epicId).addSubTask(subTaskId);
+        subTasks.put(taskCounter, subTask);
+        epics.get(epicId).addSubTask(taskCounter);
         updateEpicStatus(epicId);
+        increaseTaskCounter();
+        return subTask.getId();
     }
 
     public void updateTask(Task task) {
