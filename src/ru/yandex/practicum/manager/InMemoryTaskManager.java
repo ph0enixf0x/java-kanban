@@ -223,7 +223,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void updateEpicStatus(int id) {
-        Epic epic = getEpicById(id);
+        Epic epic = epics.get(id);
         if (epic == null) {
             System.out.println("Эпика с идентификатором " + id + " не существует");
             return;

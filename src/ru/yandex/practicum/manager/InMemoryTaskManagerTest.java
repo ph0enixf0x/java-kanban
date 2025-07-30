@@ -1,5 +1,7 @@
 package ru.yandex.practicum.manager;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.tasks.Epic;
@@ -12,14 +14,29 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
     private InMemoryTaskManager manager;
-    private final Task expectedTask1 = new Task("Первая задача", "Описание первой задачи");
-    private final Epic expectedEpic1 = new Epic("Первый эпик", "Описание первого эпика");
-    private final SubTask expectedSubTask1 = new SubTask("Подзадача один",
-            "Первая подзадача первого эпика", 1);
+    private static Task expectedTask1;
+    private static Epic expectedEpic1;
+    private static SubTask expectedSubTask1;
+
+    @BeforeAll
+    static void beforeAll() {
+        expectedTask1 = new Task("Первая задача", "Описание первой задачи");
+        expectedEpic1 = new Epic("Первый эпик", "Описание первого эпика");
+        expectedSubTask1 = new SubTask("Подзадача один",
+                "Первая подзадача первого эпика", 1);
+    }
 
     @BeforeEach
-    void setUp() {
+    void beforeEach() {
         manager = new InMemoryTaskManager();
+    }
+
+    @AfterEach
+    void afterEach() {
+        expectedTask1 = new Task("Первая задача", "Описание первой задачи");
+        expectedEpic1 = new Epic("Первый эпик", "Описание первого эпика");
+        expectedSubTask1 = new SubTask("Подзадача один",
+                "Первая подзадача первого эпика", 1);
     }
 
     @Test
@@ -60,10 +77,8 @@ class InMemoryTaskManagerTest {
         int taskId = manager.createTask(expectedTask1);
 
         manager.getEpicById(epicId);
-        manager.deleteSubTaskById(subTaskId);
+        manager.getSubTaskById(subTaskId);
         manager.getTaskById(taskId);
-
-        System.out.println(manager.getHistory());
 
         assertEquals(3, manager.getHistory().size(),
                 "Размер полученной истории не соответствует ожидаемому");
@@ -77,10 +92,18 @@ class InMemoryTaskManagerTest {
 
         for (int i = 0; i < 4; i++) {
             manager.getEpicById(epicId);
-            manager.deleteSubTaskById(subTaskId);
+            manager.getSubTaskById(subTaskId);
             manager.getTaskById(taskId);
         }
 
-        assertEquals(10, manager.getHistory().size());
+        ArrayList<Task> resultHistory = manager.getHistory();
+        expectedTask1.setId(3);
+
+        assertEquals(10, resultHistory.size(),
+                "Размер истории не равен ожидаемому");
+        assertEquals(expectedTask1, resultHistory.getFirst(),
+                "На первом месте неожиданная задача");
+        assertEquals(expectedTask1, resultHistory.getLast(),
+                "На последнем месте неожиданная задача");
     }
 }
