@@ -1,14 +1,11 @@
-package ru.yandex.practicum.manager;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.manager.InMemoryTaskManager;
 import ru.yandex.practicum.tasks.Epic;
 import ru.yandex.practicum.tasks.SubTask;
 import ru.yandex.practicum.tasks.Task;
-
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
