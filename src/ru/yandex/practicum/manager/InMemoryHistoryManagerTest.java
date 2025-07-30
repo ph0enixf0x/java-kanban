@@ -12,8 +12,8 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryTaskManagerTest {
-    private InMemoryTaskManager manager;
+class InMemoryHistoryManagerTest {
+    private InMemoryHistoryManager history;
     private static Task expectedTask1;
     private static Epic expectedEpic1;
     private static SubTask expectedSubTask1;
@@ -28,7 +28,7 @@ class InMemoryTaskManagerTest {
 
     @BeforeEach
     void beforeEach() {
-        manager = new InMemoryTaskManager();
+        history = new InMemoryHistoryManager();
     }
 
     @AfterEach
@@ -40,27 +40,36 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void getTaskById() {
-        int taskId = manager.createTask(expectedTask1);
-        expectedTask1.setId(1);
-        assertEquals(expectedTask1, manager.getTaskById(taskId),
-                "Возвращенная задача несоответствует ожидаемой");
+    void getEmptyHistory() {
+        assertEquals(0, history.getHistory().size(),
+                "Полученная история не пустая");
     }
 
     @Test
-    void getEpicById() {
-        int epicId = manager.createEpic(expectedEpic1);
-        expectedEpic1.setId(1);
-        assertEquals(expectedEpic1, manager.getEpicById(epicId),
-                "Возвращенный эпик несоответствует ожидаемому");
+    void getFilledHistory() {
+        history.add(expectedTask1);
+        history.add(expectedEpic1);
+        history.add(expectedSubTask1);
+
+        assertEquals(3, history.getHistory().size(),
+                "Размер полученной истории не соответствует ожидаемому");
     }
 
     @Test
-    void getSubTaskById() {
-        manager.createEpic(expectedEpic1);
-        int subTaskId = manager.createSubTask(expectedSubTask1);
-        expectedSubTask1.setId(2);
-        assertEquals(expectedSubTask1, manager.getSubTaskById(subTaskId),
-                "Возвращенная подзадача несоответствует ожидаемой");
+    void getOverfilledHistory() {
+        for (int i = 0; i < 4; i++) {
+            history.add(expectedTask1);
+            history.add(expectedEpic1);
+            history.add(expectedSubTask1);
+        }
+
+        ArrayList<Task> resultHistory = history.getHistory();
+
+        assertEquals(10, resultHistory.size(),
+                "Размер истории не равен ожидаемому");
+        assertEquals(expectedSubTask1, resultHistory.getFirst(),
+                "На первом месте неожиданная задача");
+        assertEquals(expectedSubTask1, resultHistory.getLast(),
+                "На последнем месте неожиданная задача");
     }
 }
