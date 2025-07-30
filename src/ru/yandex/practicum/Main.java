@@ -1,5 +1,6 @@
 package ru.yandex.practicum;
 
+import ru.yandex.practicum.manager.InMemoryTaskManager;
 import ru.yandex.practicum.manager.TaskManager;
 import ru.yandex.practicum.tasks.*;
 
@@ -7,7 +8,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        TaskManager manager = new TaskManager();
+        TaskManager manager = new InMemoryTaskManager();
 
         System.out.println("-".repeat(5) + " Тест 1: Создание задач");
         int taskId1 = manager.createTask(new Task("Первая задача",
