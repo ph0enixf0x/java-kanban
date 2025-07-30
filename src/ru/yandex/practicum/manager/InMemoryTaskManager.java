@@ -163,6 +163,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteTaskById(int taskId) {
         if (!tasks.containsKey(taskId)) {
             System.out.println("Задачи с идентификатором " + taskId + " не существует");
+            return;
         }
         tasks.remove(taskId);
     }
@@ -183,6 +184,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteSubTaskById(int subTaskId) {
         if (!subTasks.containsKey(subTaskId)) {
             System.out.println("Подзадачи с идентификатором " + subTaskId + " не существует.");
+            return;
         }
         int epicId = subTasks.get(subTaskId).getEpicId();
         epics.get(epicId).removeSubTask(subTaskId);
