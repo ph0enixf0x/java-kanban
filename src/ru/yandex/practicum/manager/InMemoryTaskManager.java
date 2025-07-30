@@ -13,14 +13,14 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks;
     private final HashMap<Integer, SubTask> subTasks;
     private final HashMap<Integer, Epic> epics;
-    private final ArrayList<Task> history;
+    public HistoryManager history;
 
     public InMemoryTaskManager() {
         this.taskCounter = 1;
         tasks = new HashMap<>();
         subTasks = new HashMap<>();
         epics = new HashMap<>();
-        history = new ArrayList<>();
+        history = new Managers().getDefaultHistory();
     }
 
     @Override
@@ -62,7 +62,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Task getTaskById(int taskId) {
         if (isExistingTask("Task", taskId)) {
             Task task = tasks.get(taskId);
-            updateHistory(task);
+            history.add(task);
             return task;
         }
         System.out.println("Задачи с идентификатором " + taskId + " не существует");
@@ -73,7 +73,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Epic getEpicById(int epicId) {
         if (isExistingTask("Epic", epicId)) {
             Epic epic = epics.get(epicId);
-            updateHistory(epic);
+            history.add(epic);
             return epic;
         }
         System.out.println("Эпика с идентификатором " + epicId + " не существует");
@@ -84,7 +84,7 @@ public class InMemoryTaskManager implements TaskManager {
     public SubTask getSubTaskById(int subTaskId) {
         if (isExistingTask("SubTask", subTaskId)) {
             SubTask subTask = subTasks.get(subTaskId);
-            updateHistory(subTask);
+            history.add(subTask);
             return subTask;
         }
         System.out.println("Подзадачи с идентификатором " + subTaskId + " не существует");
@@ -201,11 +201,6 @@ public class InMemoryTaskManager implements TaskManager {
         return null;
     }
 
-    @Override
-    public ArrayList<Task> getHistory() {
-        return history;
-    }
-
     private void increaseTaskCounter() {
         taskCounter += 1;
     }
@@ -255,12 +250,4 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    private void updateHistory(Task task) {
-        if (history.size() < 10) {
-            history.add(task);
-        } else {
-            history.removeFirst();
-            history.add(task);
-        }
-    }
 }

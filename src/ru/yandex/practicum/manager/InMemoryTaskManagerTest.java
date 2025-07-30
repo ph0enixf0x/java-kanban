@@ -66,7 +66,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void getEmptyHistory() {
-        assertEquals(0, manager.getHistory().size(),
+        assertEquals(0, manager.history.getHistory().size(),
                 "Полученная история не пустая");
     }
 
@@ -80,7 +80,7 @@ class InMemoryTaskManagerTest {
         manager.getSubTaskById(subTaskId);
         manager.getTaskById(taskId);
 
-        assertEquals(3, manager.getHistory().size(),
+        assertEquals(3, manager.history.getHistory().size(),
                 "Размер полученной истории не соответствует ожидаемому");
     }
 
@@ -96,7 +96,7 @@ class InMemoryTaskManagerTest {
             manager.getTaskById(taskId);
         }
 
-        ArrayList<Task> resultHistory = manager.getHistory();
+        ArrayList<Task> resultHistory = manager.history.getHistory();
         expectedTask1.setId(3);
 
         assertEquals(10, resultHistory.size(),
