@@ -1,8 +1,9 @@
+package ru.yandex.practicum.manager;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.manager.InMemoryTaskManager;
 import ru.yandex.practicum.tasks.Epic;
 import ru.yandex.practicum.tasks.SubTask;
 import ru.yandex.practicum.tasks.Task;
@@ -37,27 +38,45 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void getTaskById() {
+    void createTaskAndGetTaskById() {
         int taskId = manager.createTask(expectedTask1);
-        expectedTask1.setId(1);
-        assertEquals(expectedTask1, manager.getTaskById(taskId),
+        Task resultTask = manager.getTaskById(taskId);
+        assertNotNull(resultTask, "Задача не найдена");
+        assertEquals(expectedTask1, resultTask,
                 "Возвращенная задача несоответствует ожидаемой");
     }
 
     @Test
-    void getEpicById() {
+    void createEpicAndGetEpicById() {
         int epicId = manager.createEpic(expectedEpic1);
-        expectedEpic1.setId(1);
-        assertEquals(expectedEpic1, manager.getEpicById(epicId),
+        Epic resultEpic = manager.getEpicById(epicId);
+        assertNotNull(resultEpic, "Эпик не найден");
+        assertEquals(expectedEpic1, resultEpic,
                 "Возвращенный эпик несоответствует ожидаемому");
     }
 
     @Test
-    void getSubTaskById() {
+    void createSubtaskAndGetSubtaskById() {
         manager.createEpic(expectedEpic1);
         int subTaskId = manager.createSubTask(expectedSubTask1);
-        expectedSubTask1.setId(2);
-        assertEquals(expectedSubTask1, manager.getSubTaskById(subTaskId),
+        SubTask resultSubtask = manager.getSubTaskById(subTaskId);
+        assertNotNull(resultSubtask, "Подзадача не найдена");
+        assertEquals(expectedSubTask1, resultSubtask,
                 "Возвращенная подзадача несоответствует ожидаемой");
+    }
+
+    @Test
+    void checkAddingSubtaskAsSelfEpicRestriction() {
+        int subTaskId = manager.createSubTask(expectedSubTask1);
+        assertEquals(0, subTaskId,
+                "Должно быть нельзя сделать подзадачу своим же эпиком");
+    }
+
+    @Test
+    void checkAddedTaskFields() {
+        Task task = manager.getTaskById(manager.createTask(expectedTask1));
+        assertEquals(1, task.getId(), "Неожиданный идентификатор задачи");
+        assertEquals("Первая задача", task.getName(), "Неожиданное имя задачи");
+        assertEquals("Описание первой задачи", task.getDescription(), "Неожиданное описание задачи");
     }
 }

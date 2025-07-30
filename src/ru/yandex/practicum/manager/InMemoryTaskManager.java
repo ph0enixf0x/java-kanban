@@ -111,6 +111,10 @@ public class InMemoryTaskManager implements TaskManager {
     public int createSubTask(SubTask subTask) {
         subTask.setId(taskCounter);
         int epicId = subTask.getEpicId();
+        if (epicId == subTask.getId()) {
+            System.out.println("Нельзя сделать подзадачу своим собственным эпиком!");
+            return 0;
+        }
         if (!isExistingTask("Epic", epicId)) {
             System.out.println("Эпика с идентификатором " + epicId + " указанным в подзадаче не существует");
             return 0;
