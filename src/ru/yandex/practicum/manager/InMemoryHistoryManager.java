@@ -13,16 +13,18 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
-        if (history.size() < 10) {
-            history.add(task);
-        } else {
-            history.removeFirst();
-            history.add(task);
+        if (task == null) {
+            System.out.println("При добавлении задачи в историю получен null");
+            return;
         }
+        if (history.size() >= 10) {
+            history.removeFirst();
+        }
+        history.add(task);
     }
 
     @Override
     public ArrayList<Task> getHistory() {
-        return history;
+        return new ArrayList<>(history);
     }
 }
