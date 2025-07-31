@@ -7,6 +7,7 @@ import ru.yandex.practicum.tasks.TaskStatus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
     private int taskCounter;
@@ -205,6 +206,11 @@ public class InMemoryTaskManager implements TaskManager {
         }
         System.out.println("Эпика с идентификатором " + id + " не существует");
         return null;
+    }
+
+    @Override
+    public List<Task> getHistory() {
+        return history.getHistory();
     }
 
     private void increaseTaskCounter() {

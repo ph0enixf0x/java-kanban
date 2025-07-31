@@ -223,4 +223,18 @@ class InMemoryTaskManagerTest {
         assertEquals(3, manager.getEpicSubTasks(epicId).size(),
                 "Неверное количество подзадач у эпика");
     }
+
+    @Test
+    void getHistoryManagerIntegration() {
+        int epicId = manager.createEpic(expectedEpic1);
+        int taskId = manager.createTask(expectedTask1);
+        int subTaskId = manager.createSubTask(expectedSubTask1);
+
+        manager.getEpicById(epicId);
+        manager.getTaskById(taskId);
+        manager.getSubTaskById(subTaskId);
+
+        assertEquals(3, manager.getHistory().size(),
+                "Размер полученной истории не соответствует ожидаемому");
+    }
 }
