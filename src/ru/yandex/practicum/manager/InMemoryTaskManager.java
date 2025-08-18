@@ -41,17 +41,45 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTasks() {
+        if (tasks.isEmpty()) {
+            System.out.println("Список задач пуст!");
+            return;
+        }
+        for (Task task : tasks.values()) {
+            history.remove(task.getId());
+        }
         tasks.clear();
     }
 
     @Override
     public void deleteEpics() {
+        if (epics.isEmpty()) {
+            System.out.println("Список эпиков пуст!");
+            return;
+        }
+        for (Task task : epics.values()) {
+            history.remove(task.getId());
+        }
         epics.clear();
+        if (subTasks.isEmpty()) {
+            System.out.println("При удалении эпиков обнаружили, что подзадач у них нет");
+            return;
+        }
+        for (Task task : subTasks.values()) {
+            history.remove(task.getId());
+        }
         subTasks.clear();
     }
 
     @Override
     public void deleteSubTasks() {
+        if (subTasks.isEmpty()) {
+            System.out.println("Список подзадач пуст!");
+            return;
+        }
+        for (Task task : subTasks.values()) {
+            history.remove(task.getId());
+        }
         subTasks.clear();
         for (Epic epic : epics.values()) {
             epic.clearSubTasks();
@@ -167,6 +195,7 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         tasks.remove(taskId);
+        history.remove(taskId);
     }
 
     @Override
@@ -179,6 +208,7 @@ public class InMemoryTaskManager implements TaskManager {
             subTasks.remove(subtaskId);
         }
         epics.remove(epicId);
+        history.remove(epicId);
     }
 
     @Override
@@ -191,6 +221,7 @@ public class InMemoryTaskManager implements TaskManager {
         epics.get(epicId).removeSubTask(subTaskId);
         updateEpicStatus(epicId);
         subTasks.remove(subTaskId);
+        history.remove(subTaskId);
     }
 
     @Override
