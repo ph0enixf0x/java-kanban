@@ -8,13 +8,11 @@ public class InMemoryHistoryManager implements HistoryManager {
     private final ArrayList<Task> history;
     private Node head;
     private Node tail;
-    private ArrayList<Node> linkedHistory;
 
     public InMemoryHistoryManager() {
         this.history = new ArrayList<>();
         this.head = null;
         this.tail = null;
-        this.linkedHistory = new ArrayList<>();
     }
 
     @Override
@@ -39,12 +37,10 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (head == null) {
             head = newHistoryEntry;
             tail = newHistoryEntry;
-            linkedHistory.add(newHistoryEntry);
         } else {
             newHistoryEntry.prev = tail;
             tail.next = newHistoryEntry;
             tail = newHistoryEntry;
-            linkedHistory.add(newHistoryEntry);
         }
     }
 
@@ -54,8 +50,11 @@ public class InMemoryHistoryManager implements HistoryManager {
             return null;
         }
         ArrayList<Task> collectedTasks = new ArrayList<>();
-        for (Node node : linkedHistory) {
-            collectedTasks.add(node.data);
+        Node workingNode = head;
+        while (true) {
+            collectedTasks.add(workingNode.data);
+            if (workingNode.next == null) break;
+            workingNode = workingNode.next;
         }
         return collectedTasks;
     }
