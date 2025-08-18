@@ -78,17 +78,17 @@ public class InMemoryHistoryManager implements HistoryManager {
         Node prevNode = node.prev;
         Node nextNode = node.next;
 
-        if (nextNode == null && prevNode == null) {
-            return;
-        } else if (nextNode == null) {
-            tail = prevNode;
-            prevNode.next = null;
-        } else if (prevNode == null) {
-            head = nextNode;
-            nextNode.prev = null;
-        } else {
-            prevNode.next = nextNode;
-            nextNode.prev = prevNode;
+        if (nextNode != null || prevNode != null) {
+            if (nextNode == null) {
+                tail = prevNode;
+                prevNode.next = null;
+            } else if (prevNode == null) {
+                head = nextNode;
+                nextNode.prev = null;
+            } else {
+                prevNode.next = nextNode;
+                nextNode.prev = prevNode;
+            }
         }
     }
 }
