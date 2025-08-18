@@ -59,4 +59,12 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
         return collectedTasks;
     }
+
+    private void removeNode(Node node) {
+        Node newTail = node.next;
+        Node newHead = node.prev;
+        newHead.next = node.next;
+        newTail.prev = node.prev;
+        linkedHistory.remove(node);
+    }
 }
