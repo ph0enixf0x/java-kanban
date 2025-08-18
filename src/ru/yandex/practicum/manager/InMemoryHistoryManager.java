@@ -50,12 +50,11 @@ public class InMemoryHistoryManager implements HistoryManager {
         int taskId = task.getId();
         if (head == null) {
             head = newHistoryEntry;
-            tail = newHistoryEntry;
         } else {
             newHistoryEntry.prev = tail;
             tail.next = newHistoryEntry;
-            tail = newHistoryEntry;
         }
+        tail = newHistoryEntry;
         linkedHistory.put(taskId, newHistoryEntry);
     }
 
