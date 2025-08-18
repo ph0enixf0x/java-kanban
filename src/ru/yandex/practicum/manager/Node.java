@@ -1,11 +1,13 @@
 package ru.yandex.practicum.manager;
 
-public class Node <T> {
-    public T data;
-    public Node<T> next;
-    public Node<T> prev;
+import ru.yandex.practicum.tasks.Task;
 
-    public Node(T data) {
+public class Node {
+    public Task data;
+    public Node next;
+    public Node prev;
+
+    public Node(Task data) {
         this.data = data;
         this.next = null;
         this.prev = null;
