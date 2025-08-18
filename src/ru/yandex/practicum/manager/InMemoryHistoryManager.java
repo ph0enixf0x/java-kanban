@@ -58,4 +58,20 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
         return collectedTasks;
     }
+
+    private void removeNode(Node node) {
+        Node prevNode = node.prev;
+        Node nextNode = node.next;
+
+        if (nextNode == null) {
+            tail = prevNode;
+            prevNode.next = null;
+        } else if (prevNode == null) {
+            head = nextNode;
+            nextNode.prev = null;
+        } else {
+            prevNode.next = nextNode;
+            nextNode.prev = prevNode;
+        }
+    }
 }
