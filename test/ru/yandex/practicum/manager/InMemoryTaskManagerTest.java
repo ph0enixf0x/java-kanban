@@ -143,6 +143,18 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
+    void deleteSubtaskAfterDeletingAllEpics() {
+        manager.createEpic(expectedEpic1);
+        manager.createSubTask(expectedSubTask1);
+        manager.createSubTask(expectedSubTask1);
+        manager.createSubTask(expectedSubTask1);
+
+        manager.deleteEpics();
+        assertEquals(0, manager.getEpics().size(), "Все эпики должны быть удалены");
+        assertEquals(0, manager.getSubTasks().size(), "Все подзадачи должны быть удалены");
+    }
+
+    @Test
     void deleteSubtasksOnEpicDelete() {
         int epicId = manager.createEpic(expectedEpic1);
         manager.createSubTask(expectedSubTask1);
