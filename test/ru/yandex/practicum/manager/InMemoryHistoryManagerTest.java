@@ -98,4 +98,15 @@ class InMemoryHistoryManagerTest {
         assertEquals(new ArrayList<>(List.of(expectedEpic1, expectedSubTask1, expectedTask1)), testedHistory,
                 "Итоговый список истории не соответствует ожидаемому");
     }
+
+    @Test
+    void removeTaskFromHistory() {
+        history.add(expectedTask1);
+        history.add(expectedEpic1);
+        history.add(expectedSubTask1);
+        history.remove(expectedTask1.getId());
+        assertFalse(history.getHistory().contains(expectedTask1),
+                "Ожидаемая задача не была удалена из истории");
+
+    }
 }
