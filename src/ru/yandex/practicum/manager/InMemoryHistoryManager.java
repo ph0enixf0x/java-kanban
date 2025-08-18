@@ -6,9 +6,13 @@ import java.util.ArrayList;
 
 public class InMemoryHistoryManager implements HistoryManager {
     private final ArrayList<Task> history;
+    private Node head;
+    private Node tail;
 
     public InMemoryHistoryManager() {
         this.history = new ArrayList<>();
+        this.head = null;
+        this.tail = null;
     }
 
     @Override
@@ -26,5 +30,32 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public ArrayList<Task> getHistory() {
         return new ArrayList<>(history);
+    }
+
+    public void linkLast(Task task) {
+        Node newHistoryEntry = new Node(task);
+        if (head == null) {
+            head = newHistoryEntry;
+            tail = newHistoryEntry;
+        } else {
+            newHistoryEntry.prev = tail;
+            tail.next = newHistoryEntry;
+            tail = newHistoryEntry;
+        }
+    }
+
+    public ArrayList<Task> getTasks() {
+        if (head == null) {
+            System.out.println("История пустая!");
+            return null;
+        }
+        ArrayList<Task> collectedTasks = new ArrayList<>();
+        Node workingNode = head;
+        while (true) {
+            collectedTasks.add(workingNode.data);
+            if (workingNode.next == null) break;
+            workingNode = workingNode.next;
+        }
+        return collectedTasks;
     }
 }

@@ -72,4 +72,23 @@ class InMemoryHistoryManagerTest {
         assertEquals(expectedSubTask1, resultHistory.getLast(),
                 "На последнем месте неожиданная задача");
     }
+
+    @Test
+    void getEmptyLinkedTasks() {
+        assertNull(history.getTasks(), "Пустая история должна была вернуть null");
+    }
+
+    @Test
+    void addOneNewLinkedHistoryEntryAndGetLinkedTask() {
+        history.linkLast(expectedTask1);
+        System.out.println(history.getTasks());
+    }
+
+    @Test
+    void addThreeNewLinkedHistoryEntryAndGetLinkedTask() {
+        history.linkLast(expectedTask1);
+        history.linkLast(expectedEpic1);
+        history.linkLast(expectedSubTask1);
+        System.out.println(history.getTasks());
+    }
 }
