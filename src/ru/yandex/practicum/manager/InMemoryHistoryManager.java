@@ -34,6 +34,17 @@ public class InMemoryHistoryManager implements HistoryManager {
         return new ArrayList<>(getTasks());
     }
 
+    @Override
+    public void remove(int id) {
+        if (!linkedHistory.containsKey(id)) {
+            System.out.println("Такой задачи нет в истории");
+            return;
+        }
+        Node removedNode = linkedHistory.get(id);
+        removeNode(removedNode);
+        linkedHistory.remove(id);
+    }
+
     private void linkLast(Task task) {
         Node newHistoryEntry = new Node(task);
         int taskId = task.getId();
