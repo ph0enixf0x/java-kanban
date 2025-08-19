@@ -109,4 +109,17 @@ class InMemoryHistoryManagerTest {
                 "Ожидаемая задача не была удалена из истории");
 
     }
+
+    @Test
+    void checkEmptyHistoryAfterDeletion() {
+        history.add(expectedTask1);
+        history.add(expectedEpic1);
+        history.add(expectedSubTask1);
+        history.remove(expectedTask1.getId());
+        history.remove(expectedEpic1.getId());
+        history.remove(expectedSubTask1.getId());
+
+        assertTrue(history.getHistory().isEmpty(),
+                "Ожидался пустой список истории");
+    }
 }
