@@ -7,11 +7,13 @@ public class Task {
     protected String name;
     protected String description;
     protected TaskStatus status;
+    protected TaskType type;
 
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
         this.status = TaskStatus.NEW;
+        this.type = TaskType.TASK;
     }
 
     public int getId() {
@@ -68,10 +70,10 @@ public class Task {
                 '}';
     }
 
-    public String toString(Task task) {
+    public static String toString(Task task) {
         return String.join(",",
                 String.valueOf(task.id),
-                String.valueOf(TaskType.TASK),
+                String.valueOf(task.type),
                 task.name,
                 String.valueOf(task.status),
                 task.description);
