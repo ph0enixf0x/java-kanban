@@ -23,4 +23,14 @@ public class SubTask extends Task {
                 ", epicId=" + epicId +
                 '}';
     }
+
+    public static String toString(SubTask task) {
+        return String.join(",",
+                String.valueOf(task.id),
+                String.valueOf(task.type),
+                task.name,
+                String.valueOf(task.status),
+                task.description,
+                String.valueOf(task.getEpicId()));
+    }
 }

@@ -41,4 +41,14 @@ public class Epic extends Task {
                 ", subtasks=" + subtasksIds +
                 '}';
     }
+
+    public static String toString(Epic task) {
+        return String.join(",",
+                String.valueOf(task.id),
+                String.valueOf(task.type),
+                task.name,
+                String.valueOf(task.status),
+                task.description,
+                task.subtasksIds.toString());
+    }
 }
