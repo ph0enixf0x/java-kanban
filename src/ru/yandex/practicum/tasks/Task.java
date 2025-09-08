@@ -67,4 +67,13 @@ public class Task {
                 ", status=" + status +
                 '}';
     }
+
+    public String toString(Task task) {
+        return String.join(",",
+                String.valueOf(task.id),
+                String.valueOf(TaskType.TASK),
+                task.name,
+                String.valueOf(task.status),
+                task.description);
+    }
 }
