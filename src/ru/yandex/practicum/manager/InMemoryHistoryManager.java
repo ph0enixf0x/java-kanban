@@ -3,12 +3,17 @@ package ru.yandex.practicum.manager;
 import ru.yandex.practicum.tasks.Task;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final ArrayList<Task> history;
+    private Node head;
+    private Node tail;
+    private final HashMap<Integer, Node> linkedHistory;
 
     public InMemoryHistoryManager() {
-        this.history = new ArrayList<>();
+        this.head = null;
+        this.tail = null;
+        this.linkedHistory = new HashMap<>();
     }
 
     @Override
@@ -17,14 +22,69 @@ public class InMemoryHistoryManager implements HistoryManager {
             System.out.println("При добавлении задачи в историю получен null");
             return;
         }
-        if (history.size() >= 10) {
-            history.removeFirst();
+        int taskId = task.getId();
+        if (linkedHistory.containsKey(taskId)) {
+            removeNode(linkedHistory.get(taskId));
+            linkedHistory.remove(taskId);
         }
-        history.add(task);
+        linkLast(task);
     }
 
     @Override
     public ArrayList<Task> getHistory() {
-        return new ArrayList<>(history);
+        return new ArrayList<>(getTasks());
+    }
+
+    @Override
+    public void remove(int id) {
+        if (!linkedHistory.containsKey(id)) {
+            System.out.println("Такой задачи нет в истории");
+            return;
+        }
+        Node removedNode = linkedHistory.get(id);
+        removeNode(removedNode);
+        linkedHistory.remove(id);
+    }
+
+    private void linkLast(Task task) {
+        Node newHistoryEntry = new Node(task);
+        int taskId = task.getId();
+        if (head == null) {
+            head = newHistoryEntry;
+        } else {
+            newHistoryEntry.prev = tail;
+            tail.next = newHistoryEntry;
+        }
+        tail = newHistoryEntry;
+        linkedHistory.put(taskId, newHistoryEntry);
+    }
+
+    private ArrayList<Task> getTasks() {
+        ArrayList<Task> collectedTasks = new ArrayList<>();
+        Node workingNode = head;
+        while (workingNode != null) {
+            collectedTasks.add(workingNode.data);
+            workingNode = workingNode.next;
+        }
+        return collectedTasks;
+    }
+
+    private void removeNode(Node node) {
+        Node prevNode = node.prev;
+        Node nextNode = node.next;
+
+        if (nextNode == null && prevNode == null) {
+            head = null;
+            tail = null;
+        } else if (nextNode == null) {
+            tail = prevNode;
+            prevNode.next = null;
+        } else if (prevNode == null) {
+            head = nextNode;
+            nextNode.prev = null;
+        } else {
+            prevNode.next = nextNode;
+            nextNode.prev = prevNode;
+        }
     }
 }

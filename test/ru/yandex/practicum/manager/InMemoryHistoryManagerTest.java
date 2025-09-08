@@ -9,6 +9,7 @@ import ru.yandex.practicum.tasks.SubTask;
 import ru.yandex.practicum.tasks.Task;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,8 +23,10 @@ class InMemoryHistoryManagerTest {
     static void beforeAll() {
         expectedTask1 = new Task("Первая задача", "Описание первой задачи");
         expectedEpic1 = new Epic("Первый эпик", "Описание первого эпика");
+        expectedEpic1.setId(1);
         expectedSubTask1 = new SubTask("Подзадача один",
                 "Первая подзадача первого эпика", 1);
+        expectedSubTask1.setId(2);
     }
 
     @BeforeEach
@@ -35,8 +38,10 @@ class InMemoryHistoryManagerTest {
     void afterEach() {
         expectedTask1 = new Task("Первая задача", "Описание первой задачи");
         expectedEpic1 = new Epic("Первый эпик", "Описание первого эпика");
+        expectedEpic1.setId(1);
         expectedSubTask1 = new SubTask("Подзадача один",
                 "Первая подзадача первого эпика", 1);
+        expectedSubTask1.setId(2);
     }
 
     @Test
@@ -56,20 +61,65 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void getOverfilledHistory() {
-        for (int i = 0; i < 4; i++) {
-            history.add(expectedTask1);
-            history.add(expectedEpic1);
-            history.add(expectedSubTask1);
-        }
+    void checkIfDuplicatesAreRemoved() {
+        history.add(expectedTask1);
+        history.add(expectedEpic1);
+        history.add(expectedSubTask1);
+        history.add(expectedEpic1);
+        ArrayList<Task> testedHistory = history.getHistory();
+        assertEquals(3, testedHistory.size(),
+                "Размер полученной истории не соответствует ожидаемому");
+        assertEquals(new ArrayList<>(List.of(expectedTask1, expectedSubTask1, expectedEpic1)), testedHistory,
+                "Итоговый список истории не соответствует ожидаемому");
+    }
 
-        ArrayList<Task> resultHistory = history.getHistory();
+    @Test
+    void checkIfDuplicateTailRemoved() {
+        history.add(expectedTask1);
+        history.add(expectedEpic1);
+        history.add(expectedSubTask1);
+        history.add(expectedSubTask1);
+        ArrayList<Task> testedHistory = history.getHistory();
+        assertEquals(3, testedHistory.size(),
+                "Размер полученной истории не соответствует ожидаемому");
+        assertEquals(new ArrayList<>(List.of(expectedTask1, expectedEpic1, expectedSubTask1)), testedHistory,
+                "Итоговый список истории не соответствует ожидаемому");
+    }
 
-        assertEquals(10, resultHistory.size(),
-                "Размер истории не равен ожидаемому");
-        assertEquals(expectedSubTask1, resultHistory.getFirst(),
-                "На первом месте неожиданная задача");
-        assertEquals(expectedSubTask1, resultHistory.getLast(),
-                "На последнем месте неожиданная задача");
+    @Test
+    void checkIfDuplicateHeadRemoved() {
+        history.add(expectedTask1);
+        history.add(expectedEpic1);
+        history.add(expectedSubTask1);
+        history.add(expectedTask1);
+        ArrayList<Task> testedHistory = history.getHistory();
+        assertEquals(3, testedHistory.size(),
+                "Размер полученной истории не соответствует ожидаемому");
+        assertEquals(new ArrayList<>(List.of(expectedEpic1, expectedSubTask1, expectedTask1)), testedHistory,
+                "Итоговый список истории не соответствует ожидаемому");
+    }
+
+    @Test
+    void removeTaskFromHistory() {
+        history.add(expectedTask1);
+        history.add(expectedEpic1);
+        history.add(expectedSubTask1);
+        history.remove(expectedTask1.getId());
+        assertFalse(history.getHistory().contains(expectedTask1),
+                "Ожидаемая задача не была удалена из истории");
+
+    }
+
+    @Test
+    void checkEmptyHistoryAfterDeletion() {
+        history.add(expectedTask1);
+        history.add(expectedEpic1);
+        history.add(expectedSubTask1);
+        history.remove(expectedTask1.getId());
+        history.remove(expectedEpic1.getId());
+        history.remove(expectedSubTask1.getId());
+
+        assertTrue(history.getHistory().isEmpty(),
+                "Ожидался пустой список истории");
     }
 }
