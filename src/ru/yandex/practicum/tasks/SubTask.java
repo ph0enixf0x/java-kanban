@@ -33,4 +33,12 @@ public class SubTask extends Task {
                 task.description,
                 String.valueOf(task.getEpicId()));
     }
+
+    public static SubTask fromString(String stringedTask) {
+        String[] separatedTask = stringedTask.split(",");
+        SubTask task = new SubTask(separatedTask[2], separatedTask[4], Integer.parseInt(separatedTask[5]));
+        task.setId(Integer.parseInt(separatedTask[0]));
+        task.setStatus(TaskStatus.valueOf(separatedTask[3].toUpperCase()));
+        return task;
+    }
 }
