@@ -2,6 +2,13 @@ package ru.yandex.practicum.manager;
 
 import ru.yandex.practicum.tasks.*;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager{
 
     @Override
@@ -80,7 +87,24 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     private void save() {
-
+        Path savePath = Paths.get("resources", "save.txt");
+        try (FileWriter file = new FileWriter(savePath.toString())) {
+            StringBuilder saveString = new StringBuilder("id,type,name,description,status,info\n");
+            for (ArrayList<? extends Task> taskList : List.of(getTasks(), getSubTasks(), getEpics())) {
+                for (Task task : taskList) {
+                    saveString.append(toString(task)).append("\n");
+                }
+            }
+            file.write(saveString.toString());
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            try {
+                throw new ManagerSaveException("Возникла ошибка при работе с файлом сохранения", ex);
+            } catch (ManagerSaveException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public String toString(Task task) {
@@ -99,6 +123,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             taskString = taskString.substring(0, taskString.indexOf(" subtasks=[")) + subTasksIds;
         } else if (taskString.contains(" epicId=")) {
             taskString = taskString.replace(" epicId=", "");
+        } else if (taskString.contains("TASK")) {
+            taskString = taskString + ",";
         }
         return taskString;
     }
@@ -130,5 +156,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                 System.out.println("Неизвестный тип задачи");
                 return null;
         }
+    }
+}
+
+class ManagerSaveException extends Exception {
+    public ManagerSaveException(String message, Throwable cause) {
+        super(message, cause);
     }
 }
