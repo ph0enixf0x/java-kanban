@@ -209,9 +209,3 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         subTasks.put(subTask.getId(), subTask);
     }
 }
-
-class ManagerSaveException extends Exception {
-    public ManagerSaveException(String message, Throwable cause) {
-        super(message, cause);
-    }
-}
