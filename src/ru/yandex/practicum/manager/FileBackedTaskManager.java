@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager{
@@ -90,7 +91,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         Path savePath = Paths.get("resources", "save.txt");
         try (FileWriter file = new FileWriter(savePath.toString())) {
             StringBuilder saveString = new StringBuilder("id,type,name,description,status,info\n");
-            for (ArrayList<? extends Task> taskList : List.of(getTasks(), getSubTasks(), getEpics())) {
+            for (ArrayList<? extends Task> taskList : List.of(getTasks(), getEpics(), getSubTasks())) {
                 for (Task task : taskList) {
                     saveString.append(toString(task)).append("\n");
                 }
@@ -100,9 +101,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             ex.printStackTrace();
         } catch (IOException ex) {
             try {
-                throw new ManagerSaveException("Возникла ошибка при работе с файлом сохранения", ex);
+                throw new ManagerSaveException("Возникла ошибка при работе сохранении состояния в файл", ex);
             } catch (ManagerSaveException e) {
-                throw new RuntimeException(e);
+                System.out.println(ex.getMessage());
+                ex.printStackTrace();
             }
         }
     }
@@ -156,6 +158,55 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                 System.out.println("Неизвестный тип задачи");
                 return null;
         }
+    }
+
+    public static FileBackedTaskManager loadFromFile(File file) {
+        try {
+            String savedString = Files.readString(file.toPath());
+            FileBackedTaskManager loadedManager = new FileBackedTaskManager();
+            savedString = savedString.substring(savedString.indexOf("\n") + 1);
+            String[] savedTasks = savedString.split("\n");
+            int maxCounter = 0;
+
+            for (String task : savedTasks) {
+                int taskId = Integer.parseInt(task.substring(0, task.indexOf(",")));
+                if (maxCounter < taskId) maxCounter = taskId;
+                if (task.contains(",TASK,")) {
+                    loadedManager.loadTask(loadedManager.fromString(task));
+                } else if (task.contains(",EPIC,")) {
+                    loadedManager.loadEpic((Epic) loadedManager.fromString(task));
+                } else if (task.contains(",SUBTASK,")) {
+                    loadedManager.loadSubTask((SubTask) loadedManager.fromString(task));
+                }
+            }
+
+            loadedManager.setTaskCounter(maxCounter + 1);
+            return loadedManager;
+        } catch (IOException ex) {
+            try {
+                throw new ManagerSaveException("Возникла ошибка при загрузке состояния из файла", ex);
+            } catch (ManagerSaveException e) {
+                System.out.println(ex.getMessage());
+                ex.printStackTrace();
+                return new FileBackedTaskManager();
+            }
+        }
+    }
+
+    private void setTaskCounter(int counter) {
+        this.taskCounter = counter;
+    }
+
+    private void loadTask(Task task) {
+        tasks.put(task.getId(), task);
+    }
+
+    private void loadEpic(Epic epic) {
+        epics.put(epic.getId(), epic);
+    }
+
+    private void loadSubTask(SubTask subTask) {
+        subTasks.put(subTask.getId(), subTask);
     }
 }
 
