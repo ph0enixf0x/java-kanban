@@ -82,4 +82,24 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     private void save() {
 
     }
+
+    public String toString(Task task) {
+        String taskString = task.toString();
+        taskString = taskString.substring(taskString.indexOf("{") + 1, taskString.length() - 1)
+                .replace("'", "")
+                .replace("id=", "")
+                .replace(" name=", task.getType() + ",")
+                .replace(" description=", "")
+                .replace(" status=", "");
+        if (taskString.contains(" subtasks=[")) {
+            String subTasksIds = taskString.substring(taskString.indexOf("[") + 1);
+            subTasksIds = subTasksIds
+                    .substring(0, subTasksIds.length() - 1)
+                    .replace(" ", "");
+            taskString = taskString.substring(0, taskString.indexOf(" subtasks=[")) + subTasksIds;
+        } else if (taskString.contains(" epicId=")) {
+            taskString = taskString.replace(" epicId=", "");
+        }
+        return taskString;
+    }
 }
