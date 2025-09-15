@@ -49,6 +49,6 @@ public class Epic extends Task {
                 task.name,
                 String.valueOf(task.status),
                 task.description,
-                task.subtasksIds.toString());
+                task.subtasksIds.toString().replace("[", "")).replace("]", "");
     }
 }
