@@ -73,21 +73,4 @@ public class Task {
                 ", status=" + status +
                 '}';
     }
-
-    public static String toString(Task task) {
-        return String.join(",",
-                String.valueOf(task.id),
-                String.valueOf(task.type),
-                task.name,
-                String.valueOf(task.status),
-                task.description);
-    }
-
-    public static Task fromString(String stringedTask) {
-        String[] separatedTask = stringedTask.split(",");
-        Task task = new Task(separatedTask[2], separatedTask[4]);
-        task.setId(Integer.parseInt(separatedTask[0]));
-        task.setStatus(TaskStatus.valueOf(separatedTask[3].toUpperCase()));
-        return task;
-    }
 }
