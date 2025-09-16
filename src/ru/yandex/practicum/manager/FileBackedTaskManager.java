@@ -11,6 +11,17 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager{
+    private final Path saveFile;
+
+    public FileBackedTaskManager() {
+        super();
+        this.saveFile = Paths.get("resources", "save.txt");
+    }
+
+    public FileBackedTaskManager(Path saveFile) {
+        super();
+        this.saveFile = saveFile;
+    }
 
     @Override
     public void deleteTasks() {
@@ -88,8 +99,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     private void save() {
-        Path savePath = Paths.get("resources", "save.txt");
-        try (FileWriter file = new FileWriter(savePath.toString())) {
+        try (FileWriter file = new FileWriter(saveFile.toString())) {
             StringBuilder saveString = new StringBuilder("id,type,name,description,status,info\n");
             for (ArrayList<? extends Task> taskList : List.of(getTasks(), getEpics(), getSubTasks())) {
                 for (Task task : taskList) {
@@ -163,10 +173,21 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     public static FileBackedTaskManager loadFromFile(File file) {
         try {
             String savedString = Files.readString(file.toPath());
-            FileBackedTaskManager loadedManager = new FileBackedTaskManager();
+            FileBackedTaskManager loadedManager = new FileBackedTaskManager(file.toPath());
+
+            if (!savedString.contains("id,type,name,description,status,info")) {
+                System.out.println("Шапка файла сохранения сформирована не корректно");
+                return loadedManager;
+            }
+
             savedString = savedString.substring(savedString.indexOf("\n") + 1);
             String[] savedTasks = savedString.split("\n");
             int maxCounter = 0;
+
+            if (savedString.isBlank()) {
+                System.out.println("Файл сохранения не содержит сохраненных задач");
+                return loadedManager;
+            }
 
             for (String task : savedTasks) {
                 int taskId = Integer.parseInt(task.substring(0, task.indexOf(",")));
@@ -188,7 +209,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             } catch (ManagerSaveException e) {
                 System.out.println(ex.getMessage());
                 ex.printStackTrace();
-                return new FileBackedTaskManager();
+                return new FileBackedTaskManager(file.toPath());
             }
         }
     }
