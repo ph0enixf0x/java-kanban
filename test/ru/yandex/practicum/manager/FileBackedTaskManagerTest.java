@@ -134,10 +134,12 @@ class FileBackedTaskManagerTest {
         try {
             File testFile = File.createTempFile("test", ".txt");
             try (FileWriter fr = new FileWriter(testFile)) {
-                String header = "id,type,name,description,status,info\n" +
-                        "1,TASK,Первая задача,Описание первой задачи,NEW,\n" +
-                        "4,SUBTASK,Подзадача один,Первая подзадача первого эпика,NEW,3\n" +
-                        "3,EPIC,Первый эпик,Описание первого эпика,NEW,4\n";
+                String header = """
+                        id,type,name,description,status,info
+                        1,TASK,Первая задача,Описание первой задачи,NEW,
+                        4,SUBTASK,Подзадача один,Первая подзадача первого эпика,NEW,3
+                        3,EPIC,Первый эпик,Описание первого эпика,NEW,4
+                        """;
                 fr.write(header);
             }
             FileBackedTaskManager manager = FileBackedTaskManager.loadFromFile(testFile);
@@ -159,11 +161,13 @@ class FileBackedTaskManagerTest {
             manager.createTask(new Task("Первая задача", "Описание первой задачи"));
             manager.createTask(new Task("Первая задача", "Описание первой задачи"));
 
-            assertEquals("id,type,name,description,status,info\n" +
-                            "1,TASK,Первая задача,Описание первой задачи,NEW,\n" +
-                            "2,TASK,Первая задача,Описание первой задачи,NEW,\n" +
-                            "3,TASK,Первая задача,Описание первой задачи,NEW,\n" +
-                            "4,TASK,Первая задача,Описание первой задачи,NEW,\n",
+            assertEquals("""
+                            id,type,name,description,status,info
+                            1,TASK,Первая задача,Описание первой задачи,NEW,
+                            2,TASK,Первая задача,Описание первой задачи,NEW,
+                            3,TASK,Первая задача,Описание первой задачи,NEW,
+                            4,TASK,Первая задача,Описание первой задачи,NEW,
+                            """,
                     Files.readString(testFile.toPath()),
                     "Сохраненный менеджером файл не соответствует ожидаемому");
 
