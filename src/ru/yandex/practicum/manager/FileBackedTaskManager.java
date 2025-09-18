@@ -191,14 +191,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
             loadedManager.taskCounter = maxCounter + 1;
             return loadedManager;
-        } catch (IOException ex) {
-            try {
-                throw new ManagerSaveException("Возникла ошибка при загрузке состояния из файла", ex);
-            } catch (ManagerSaveException e) {
-                System.out.println(ex.getMessage());
-                ex.printStackTrace();
-                return new FileBackedTaskManager(file);
-            }
+        } catch (Exception ex) {
+            throw new ManagerSaveException("Возникла ошибка при загрузке состояния из файла", ex);
         }
     }
 }
