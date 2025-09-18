@@ -102,15 +102,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 }
             }
             file.write(saveString.toString());
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            try {
-                throw new ManagerSaveException("Возникла ошибка при работе сохранении состояния в файл", ex);
-            } catch (ManagerSaveException e) {
-                System.out.println(ex.getMessage());
-                ex.printStackTrace();
-            }
+        } catch (Exception ex) {
+            throw new ManagerSaveException("Возникла ошибка при работе сохранении состояния в файл", ex);
         }
     }
 
