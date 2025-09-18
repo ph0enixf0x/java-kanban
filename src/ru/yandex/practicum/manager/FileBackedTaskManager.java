@@ -10,14 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-    private final Path saveFile;
+    private final File saveFile;
 
-    public FileBackedTaskManager() {
-        super();
-        this.saveFile = Paths.get("resources", "save.txt");
-    }
-
-    public FileBackedTaskManager(Path saveFile) {
+    public FileBackedTaskManager(File saveFile) {
         super();
         this.saveFile = saveFile;
     }
@@ -171,8 +166,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static FileBackedTaskManager loadFromFile(File file) {
         try {
+            FileBackedTaskManager loadedManager = new FileBackedTaskManager(file);
             String savedString = Files.readString(file.toPath());
-            FileBackedTaskManager loadedManager = new FileBackedTaskManager(file.toPath());
 
             if (!savedString.contains("id,type,name,description,status,info")) {
                 System.out.println("Шапка файла сохранения сформирована не корректно");
@@ -208,7 +203,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             } catch (ManagerSaveException e) {
                 System.out.println(ex.getMessage());
                 ex.printStackTrace();
-                return new FileBackedTaskManager(file.toPath());
+                return new FileBackedTaskManager(file);
             }
         }
     }

@@ -16,7 +16,12 @@ class FileBackedTaskManagerTest {
 
     @BeforeEach
     void beforeEach() {
-        manager = new FileBackedTaskManager();
+        try {
+            File testFile = File.createTempFile("test", ".txt");
+            manager = new FileBackedTaskManager(testFile);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Test
