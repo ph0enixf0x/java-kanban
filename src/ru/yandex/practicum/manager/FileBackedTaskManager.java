@@ -121,28 +121,23 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return taskString.toString();
     }
 
-    public Task fromString(String value) {
+    private Task fromString(String value) {
         String[] splitValue = value.split(",");
         switch (TaskType.valueOf(splitValue[1])) {
             case TASK:
-                Task generatedTask = new Task(splitValue[2], splitValue[3]);
+                Task generatedTask = new Task(splitValue[2], splitValue[4]);
                 generatedTask.setId(Integer.parseInt(splitValue[0]));
-                generatedTask.setStatus(TaskStatus.valueOf(splitValue[4]));
+                generatedTask.setStatus(TaskStatus.valueOf(splitValue[3]));
                 return generatedTask;
             case SUBTASK:
-                SubTask generatedSubTask = new SubTask(splitValue[2], splitValue[3], Integer.parseInt(splitValue[5]));
+                SubTask generatedSubTask = new SubTask(splitValue[2], splitValue[4], Integer.parseInt(splitValue[5]));
                 generatedSubTask.setId(Integer.parseInt(splitValue[0]));
-                generatedSubTask.setStatus(TaskStatus.valueOf(splitValue[4]));
+                generatedSubTask.setStatus(TaskStatus.valueOf(splitValue[3]));
                 return generatedSubTask;
             case EPIC:
-                Epic generatedEpic = new Epic(splitValue[2], splitValue[3]);
+                Epic generatedEpic = new Epic(splitValue[2], splitValue[4]);
                 generatedEpic.setId(Integer.parseInt(splitValue[0]));
-                generatedEpic.setStatus(TaskStatus.valueOf(splitValue[4]));
-                if (splitValue.length > 5) {
-                    for (int i = 5; i < splitValue.length; i++) {
-                        generatedEpic.addSubTask(Integer.parseInt(splitValue[i]));
-                    }
-                }
+                generatedEpic.setStatus(TaskStatus.valueOf(splitValue[3]));
                 return generatedEpic;
             default:
                 System.out.println("Неизвестный тип задачи");
