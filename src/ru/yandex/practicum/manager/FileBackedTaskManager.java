@@ -108,25 +108,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     public String toString(Task task) {
-        String taskString = task.toString();
-        taskString = taskString.substring(taskString.indexOf("{") + 1, taskString.length() - 1)
-                .replace("'", "")
-                .replace("id=", "")
-                .replace(" name=", task.getType() + ",")
-                .replace(" description=", "")
-                .replace(" status=", "");
-        if (taskString.contains(" subtasks=[")) {
-            String subTasksIds = taskString.substring(taskString.indexOf("[") + 1);
-            subTasksIds = subTasksIds
-                    .substring(0, subTasksIds.length() - 1)
-                    .replace(" ", "");
-            taskString = taskString.substring(0, taskString.indexOf(" subtasks=[")) + subTasksIds;
-        } else if (taskString.contains(" epicId=")) {
-            taskString = taskString.replace(" epicId=", "");
-        } else if (taskString.contains("TASK")) {
-            taskString = taskString + ",";
+        StringBuilder taskString = new StringBuilder();
+        TaskType taskType = task.getType();
+        taskString.append(task.getId()).append(",");
+        taskString.append(task.getType()).append(",");
+        taskString.append(task.getName()).append(",");
+        taskString.append(task.getStatus()).append(",");
+        taskString.append(task.getDescription()).append(",");
+        if (taskType.equals(TaskType.SUBTASK)) {
+            taskString.append(((SubTask) task).getEpicId());
         }
-        return taskString;
+        return taskString.toString();
     }
 
     public Task fromString(String value) {
