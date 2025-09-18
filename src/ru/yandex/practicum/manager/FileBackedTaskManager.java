@@ -150,7 +150,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             FileBackedTaskManager loadedManager = new FileBackedTaskManager(file);
             String savedString = Files.readString(file.toPath());
 
-            if (!savedString.contains("id,type,name,description,status,info")) {
+            if (!savedString.contains(SAVE_FILE_HEADER)) {
                 System.out.println("Шапка файла сохранения сформирована не корректно");
                 return loadedManager;
             }
@@ -164,19 +164,30 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 return loadedManager;
             }
 
-            for (String task : savedTasks) {
-                int taskId = Integer.parseInt(task.substring(0, task.indexOf(",")));
-                if (maxCounter < taskId) maxCounter = taskId;
-                if (task.contains(",TASK,")) {
-                    loadedManager.loadTask(loadedManager.fromString(task));
-                } else if (task.contains(",EPIC,")) {
-                    loadedManager.loadEpic((Epic) loadedManager.fromString(task));
-                } else if (task.contains(",SUBTASK,")) {
-                    loadedManager.loadSubTask((SubTask) loadedManager.fromString(task));
+            for (String taskString : savedTasks) {
+                Task task = loadedManager.fromString(taskString);
+                if (task != null) {
+                    int taskId = task.getId();
+                    if (maxCounter < taskId) maxCounter = taskId;
+                    switch (task.getType()) {
+                        case TASK:
+                            loadedManager.tasks.put(taskId, task);
+                            break;
+                        case EPIC:
+                            loadedManager.epics.put(taskId, (Epic) task);
+                            break;
+                        case SUBTASK:
+                            SubTask subTask = (SubTask) task;
+                            int epicId = subTask.getEpicId();
+                            loadedManager.subTasks.put(taskId, subTask);
+                            Epic epic = loadedManager.epics.get(epicId);
+                            epic.addSubTask(taskId);
+                            loadedManager.epics.put(epicId, epic);
+                    }
                 }
             }
 
-            loadedManager.setTaskCounter(maxCounter + 1);
+            loadedManager.taskCounter = maxCounter + 1;
             return loadedManager;
         } catch (IOException ex) {
             try {
@@ -187,21 +198,5 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 return new FileBackedTaskManager(file);
             }
         }
-    }
-
-    private void setTaskCounter(int counter) {
-        this.taskCounter = counter;
-    }
-
-    private void loadTask(Task task) {
-        tasks.put(task.getId(), task);
-    }
-
-    private void loadEpic(Epic epic) {
-        epics.put(epic.getId(), epic);
-    }
-
-    private void loadSubTask(SubTask subTask) {
-        subTasks.put(subTask.getId(), subTask);
     }
 }
