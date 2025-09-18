@@ -11,6 +11,7 @@ import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File saveFile;
+    private static final String SAVE_FILE_HEADER = "id,type,name,status,description,epic\n";
 
     public FileBackedTaskManager(File saveFile) {
         super();
@@ -94,7 +95,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private void save() {
         try (FileWriter file = new FileWriter(saveFile.toString())) {
-            StringBuilder saveString = new StringBuilder("id,type,name,description,status,info\n");
+            StringBuilder saveString = new StringBuilder(SAVE_FILE_HEADER);
             for (ArrayList<? extends Task> taskList : List.of(getTasks(), getEpics(), getSubTasks())) {
                 for (Task task : taskList) {
                     saveString.append(toString(task)).append("\n");
