@@ -93,6 +93,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         save();
     }
 
+    public File getSaveFile() {
+        return saveFile;
+    }
+
     private void save() {
         try (FileWriter file = new FileWriter(saveFile.toString())) {
             StringBuilder saveString = new StringBuilder(SAVE_FILE_HEADER);
