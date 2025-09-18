@@ -14,11 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class FileBackedTaskManagerTest {
     private FileBackedTaskManager manager;
 
-    @BeforeEach
-    void beforeEach() {
-        manager = new FileBackedTaskManager();
-    }
-
     @Test
     void convertTaskToString() {
         assertEquals("0,TASK,Первая задача,Описание первой задачи,NEW,",
