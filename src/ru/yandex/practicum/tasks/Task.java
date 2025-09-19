@@ -30,6 +30,10 @@ public class Task {
         return status;
     }
 
+    public TaskType getType() {
+        return TaskType.TASK;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
