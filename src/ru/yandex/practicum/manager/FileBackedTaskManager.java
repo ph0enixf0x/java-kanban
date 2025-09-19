@@ -1,5 +1,7 @@
 package ru.yandex.practicum.manager;
 
+import ru.yandex.practicum.exception.ManagerLoadException;
+import ru.yandex.practicum.exception.ManagerSaveException;
 import ru.yandex.practicum.tasks.*;
 
 import java.io.*;
@@ -191,7 +193,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             loadedManager.taskCounter = maxCounter + 1;
             return loadedManager;
         } catch (Exception ex) {
-            throw new ManagerSaveException("Возникла ошибка при загрузке состояния из файла", ex);
+            throw new ManagerLoadException("Возникла ошибка при загрузке состояния из файла", ex);
         }
     }
 }
