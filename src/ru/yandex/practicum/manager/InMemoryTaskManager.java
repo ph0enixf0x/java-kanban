@@ -1,13 +1,15 @@
 package ru.yandex.practicum.manager;
 
+import org.testng.internal.collections.Pair;
 import ru.yandex.practicum.tasks.Epic;
 import ru.yandex.practicum.tasks.SubTask;
 import ru.yandex.practicum.tasks.Task;
 import ru.yandex.practicum.tasks.TaskStatus;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
     protected int taskCounter;
@@ -83,7 +85,9 @@ public class InMemoryTaskManager implements TaskManager {
         subTasks.clear();
         for (Epic epic : epics.values()) {
             epic.clearSubTasks();
-            updateEpicStatus(epic.getId());
+            int epicId = epic.getId();
+            updateEpicStatus(epicId);
+            updateEpicTime(epicId);
         }
     }
 
@@ -151,6 +155,7 @@ public class InMemoryTaskManager implements TaskManager {
         subTasks.put(taskCounter, subTask);
         epics.get(epicId).addSubTask(taskCounter);
         updateEpicStatus(epicId);
+        updateEpicTime(epicId);
         increaseTaskCounter();
         return subTask.getId();
     }
@@ -185,7 +190,9 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         subTasks.put(subTaskId, subTask);
-        updateEpicStatus(subTask.getEpicId());
+        int epicId = subTask.getEpicId();
+        updateEpicStatus(epicId);
+        updateEpicTime(epicId);
     }
 
     @Override
@@ -223,6 +230,7 @@ public class InMemoryTaskManager implements TaskManager {
         updateEpicStatus(epicId);
         subTasks.remove(subTaskId);
         history.remove(subTaskId);
+        updateEpicTime(epicId);
     }
 
     @Override
@@ -292,6 +300,30 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             epic.setStatus(TaskStatus.IN_PROGRESS);
         }
+    }
+
+    private void updateEpicTime(int id) {
+        Epic epic = epics.get(id);
+        if (epic == null) {
+            System.out.println("Эпика с идентификатором " + id + " не существует");
+            return;
+        }
+        epic.setDuration(Duration.ZERO);
+        Pair<Optional<SubTask>, Optional<SubTask>> datedSubTasks = epic.getSubtasksIds()
+                .stream()
+                .map(subTasks::get)
+                .filter(subTask -> subTask.getStartTime() != null)
+                .peek(subTask -> epic.setDuration(epic.getDuration().plus(subTask.getDuration())))
+                .collect(Collectors.teeing(
+                        Collectors.minBy(Comparator.comparing(Task::getStartTime)),
+                        Collectors.maxBy(Comparator.comparing(Task::getStartTime)),
+                        Pair::new
+                ));
+        datedSubTasks.first().ifPresentOrElse(subTask -> epic.setStartTime(subTask.getStartTime()),
+                () -> epic.setStartTime(null));
+        datedSubTasks.second().ifPresentOrElse(subTask -> epic.setEndTime(subTask.getEndTime()),
+                () -> epic.setEndTime(null));
+
     }
 
 }
