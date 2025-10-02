@@ -65,6 +65,10 @@ public class Task {
         this.description = description;
     }
 
+    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+
+    public void setDuration(Duration duration) { this.duration = duration; }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

@@ -16,6 +16,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected final HashMap<Integer, Task> tasks;
     protected final HashMap<Integer, SubTask> subTasks;
     protected final HashMap<Integer, Epic> epics;
+    protected final TreeSet<Task> prioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
     private final HistoryManager history;
 
     public InMemoryTaskManager() {
@@ -49,6 +50,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         for (Task task : tasks.values()) {
             history.remove(task.getId());
+            prioritizedTasks.remove(task);
         }
         tasks.clear();
     }
@@ -81,6 +83,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         for (Task task : subTasks.values()) {
             history.remove(task.getId());
+            prioritizedTasks.remove(task);
         }
         subTasks.clear();
         for (Epic epic : epics.values()) {
@@ -128,6 +131,7 @@ public class InMemoryTaskManager implements TaskManager {
     public int createTask(Task task) {
         task.setId(taskCounter);
         tasks.put(taskCounter, task);
+        prioritizeTask(task);
         increaseTaskCounter();
         return task.getId();
     }
@@ -156,6 +160,7 @@ public class InMemoryTaskManager implements TaskManager {
         epics.get(epicId).addSubTask(taskCounter);
         updateEpicStatus(epicId);
         updateEpicTime(epicId);
+        prioritizeTask(subTask);
         increaseTaskCounter();
         return subTask.getId();
     }
@@ -167,6 +172,8 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Задачи с идентификатором " + taskId + " не существует");
             return;
         }
+        prioritizedTasks.remove(task);
+        prioritizeTask(task);
         tasks.put(taskId, task);
     }
 
@@ -189,6 +196,8 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Подзадачи с идентификатором " + subTaskId + " не существует");
             return;
         }
+        prioritizedTasks.remove(subTask);
+        prioritizeTask(subTask);
         subTasks.put(subTaskId, subTask);
         int epicId = subTask.getEpicId();
         updateEpicStatus(epicId);
@@ -201,8 +210,10 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Задачи с идентификатором " + taskId + " не существует");
             return;
         }
+        prioritizedTasks.remove(tasks.get(taskId));
         tasks.remove(taskId);
         history.remove(taskId);
+
     }
 
     @Override
@@ -228,6 +239,7 @@ public class InMemoryTaskManager implements TaskManager {
         int epicId = subTasks.get(subTaskId).getEpicId();
         epics.get(epicId).removeSubTask(subTaskId);
         updateEpicStatus(epicId);
+        prioritizedTasks.remove(subTasks.get(subTaskId));
         subTasks.remove(subTaskId);
         history.remove(subTaskId);
         updateEpicTime(epicId);
@@ -251,6 +263,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return history.getHistory();
+    }
+
+    public List<Task> getPrioritizedTasks() {
+        return new ArrayList<>(prioritizedTasks);
     }
 
     private void increaseTaskCounter() {
@@ -326,4 +342,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     }
 
+    private void prioritizeTask(Task task) {
+        if (task.getStartTime() == null) {
+            return;
+        }
+        prioritizedTasks.add(task);
+    }
 }
