@@ -6,6 +6,8 @@ import ru.yandex.practicum.tasks.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,9 +36,11 @@ class FileBackedTaskManagerTest {
     void checkRestoreFromSaveFile() throws IOException {
         File testFile = File.createTempFile("test", ".txt");
         FileBackedTaskManager manager = FileBackedTaskManager.loadFromFile(testFile);
-        int taskId = manager.createTask(new Task("Первая задача", "Описание первой задачи"));
+        int taskId = manager.createTask(new Task("Первая задача", "Описание первой задачи",
+                LocalDateTime.now(), Duration.ofMinutes(60)));
         int epicId = manager.createEpic(new Epic("Первый эпик", "Описание первого эпика"));
-        int subTaskId = manager.createSubTask(new SubTask("Первая подзадача", "Подзадача первого эпика", epicId));
+        int subTaskId = manager.createSubTask(new SubTask("Первая подзадача", "Подзадача первого эпика",
+                LocalDateTime.now(), Duration.ofMinutes(60), epicId));
         SubTask testSubTask = manager.getSubTaskById(subTaskId);
         testSubTask.setStatus(TaskStatus.DONE);
         manager.updateSubTask(testSubTask);

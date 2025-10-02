@@ -9,6 +9,9 @@ import ru.yandex.practicum.tasks.SubTask;
 import ru.yandex.practicum.tasks.Task;
 import ru.yandex.practicum.tasks.TaskStatus;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
@@ -19,10 +22,12 @@ class InMemoryTaskManagerTest {
 
     @BeforeAll
     static void beforeAll() {
-        expectedTask1 = new Task("Первая задача", "Описание первой задачи");
+        expectedTask1 = new Task("Первая задача", "Описание первой задачи",
+                LocalDateTime.now(), Duration.ofMinutes(60));
         expectedEpic1 = new Epic("Первый эпик", "Описание первого эпика");
         expectedSubTask1 = new SubTask("Подзадача один",
-                "Первая подзадача первого эпика", 1);
+                "Первая подзадача первого эпика",
+                LocalDateTime.now(), Duration.ofMinutes(60), 1);
     }
 
     @BeforeEach
@@ -32,10 +37,12 @@ class InMemoryTaskManagerTest {
 
     @AfterEach
     void afterEach() {
-        expectedTask1 = new Task("Первая задача", "Описание первой задачи");
+        expectedTask1 = new Task("Первая задача", "Описание первой задачи",
+                LocalDateTime.now(), Duration.ofMinutes(60));
         expectedEpic1 = new Epic("Первый эпик", "Описание первого эпика");
         expectedSubTask1 = new SubTask("Подзадача один",
-                "Первая подзадача первого эпика", 1);
+                "Первая подзадача первого эпика",
+                LocalDateTime.now(), Duration.ofMinutes(60), 1);
     }
 
     @Test
@@ -214,7 +221,8 @@ class InMemoryTaskManagerTest {
                 "Статус эпика должен был измениться на DONE");
 
         manager.createSubTask(new SubTask("Другая подзадача",
-                "Другое описание", 1));
+                "Другое описание",
+                LocalDateTime.now(), Duration.ofMinutes(60), 1));
 
         assertEquals(TaskStatus.IN_PROGRESS, manager.getEpicById(epicId).getStatus(),
                 "Статус эпика должен был измениться на IN_PROGRESS");
