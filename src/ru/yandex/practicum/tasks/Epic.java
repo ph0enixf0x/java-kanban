@@ -1,12 +1,15 @@
 package ru.yandex.practicum.tasks;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Epic extends Task {
     private final ArrayList<Integer> subtasksIds;
+    private LocalDateTime endTime;
 
     public Epic(String name, String description) {
-        super(name, description);
+        super(name, description, null, Duration.ZERO);
         this.subtasksIds = new ArrayList<>();
     }
 
@@ -19,6 +22,8 @@ public class Epic extends Task {
         return TaskType.EPIC;
     }
 
+    public LocalDateTime getEndTime() { return endTime; }
+
     public void addSubTask(int subtaskId) {
         if (subtaskId == id) {
             System.out.println("Нельзя добавить эпик как подзадачу самому себе!");
@@ -26,6 +31,12 @@ public class Epic extends Task {
         }
         subtasksIds.add(subtaskId);
     }
+
+    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
+
+    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+
+    public void setDuration(Duration duration) { this.duration = duration; }
 
     public void removeSubTask(Integer subtaskId) {
         subtasksIds.remove(subtaskId);
