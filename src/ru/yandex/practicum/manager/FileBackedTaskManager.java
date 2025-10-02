@@ -6,12 +6,15 @@ import ru.yandex.practicum.tasks.*;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File saveFile;
-    private static final String SAVE_FILE_HEADER = "id,type,name,status,description,epic\n";
+    private static final String SAVE_FILE_HEADER = "id,type,name,status,description,start,duration,epic\n";
 
     public FileBackedTaskManager(File saveFile) {
         super();
@@ -113,13 +116,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public String toString(Task task) {
         StringBuilder taskString = new StringBuilder();
-        TaskType taskType = task.getType();
         taskString.append(task.getId()).append(",");
         taskString.append(task.getType()).append(",");
         taskString.append(task.getName()).append(",");
         taskString.append(task.getStatus()).append(",");
         taskString.append(task.getDescription()).append(",");
-        if (taskType.equals(TaskType.SUBTASK)) {
+        if (task.getStartTime() != null) {
+            taskString.append(task.getStartTime().truncatedTo(ChronoUnit.SECONDS)).append(",");
+            taskString.append(task.getDuration().toMinutes()).append(",");
+        } else {
+            taskString.append(",");
+            taskString.append(",");
+        }
+        if (task.getType().equals(TaskType.SUBTASK)) {
             taskString.append(((SubTask) task).getEpicId());
         }
         return taskString.toString();
@@ -129,12 +138,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String[] splitValue = value.split(",");
         switch (TaskType.valueOf(splitValue[1])) {
             case TASK:
-                Task generatedTask = new Task(splitValue[2], splitValue[4]);
+                Task generatedTask = new Task(splitValue[2], splitValue[4],
+                        LocalDateTime.parse(splitValue[5]), Duration.ofMinutes(Integer.parseInt(splitValue[6])));
                 generatedTask.setId(Integer.parseInt(splitValue[0]));
                 generatedTask.setStatus(TaskStatus.valueOf(splitValue[3]));
                 return generatedTask;
             case SUBTASK:
-                SubTask generatedSubTask = new SubTask(splitValue[2], splitValue[4], Integer.parseInt(splitValue[5]));
+                SubTask generatedSubTask = new SubTask(splitValue[2], splitValue[4],
+                        LocalDateTime.parse(splitValue[5]), Duration.ofMinutes(Integer.parseInt(splitValue[6])),
+                        Integer.parseInt(splitValue[7]));
                 generatedSubTask.setId(Integer.parseInt(splitValue[0]));
                 generatedSubTask.setStatus(TaskStatus.valueOf(splitValue[3]));
                 return generatedSubTask;
