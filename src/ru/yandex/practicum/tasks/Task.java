@@ -45,9 +45,13 @@ public class Task {
         return startTime.plus(duration);
     }
 
-    public LocalDateTime getStartTime() { return startTime; }
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
 
-    public Duration getDuration() { return duration; }
+    public Duration getDuration() {
+        return duration;
+    }
 
     public void setId(int id) {
         this.id = id;
@@ -65,9 +69,13 @@ public class Task {
         this.description = description;
     }
 
-    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
 
-    public void setDuration(Duration duration) { this.duration = duration; }
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
 
     @Override
     public boolean equals(Object o) {
