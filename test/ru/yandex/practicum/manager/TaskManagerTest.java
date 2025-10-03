@@ -169,30 +169,30 @@ abstract class TaskManagerTest<T extends TaskManager>
         int epicId = manager.createEpic(expectedEpic);
         int subTaskId = manager.createSubTask(expectedSubTask);
 
+        assertEquals(TaskStatus.NEW, manager.getEpicById(epicId).getStatus(),
+                "Статус эпика должен быть NEW");
+
         SubTask subTask = manager.getSubTaskById(subTaskId);
-        subTask.setStatus(TaskStatus.IN_PROGRESS);
-        manager.updateSubTask(subTask);
-
-        assertEquals(TaskStatus.IN_PROGRESS, manager.getEpicById(epicId).getStatus(),
-                "Статус эпика должен был измениться на IN_PROGRESS");
-
         subTask.setStatus(TaskStatus.DONE);
         manager.updateSubTask(subTask);
 
         assertEquals(TaskStatus.DONE, manager.getEpicById(epicId).getStatus(),
                 "Статус эпика должен был измениться на DONE");
 
-        manager.createSubTask(new SubTask("Другая подзадача",
-                "Другое описание",
-                LocalDateTime.now().plusDays(2), Duration.ofMinutes(60), 1));
+        int subTaskId2 = manager.createSubTask(new SubTask("Вторая подзадача", "Новая тестовая подзадача",
+                LocalDateTime.now().plusDays(2), Duration.ofMinutes(60), epicId));
 
         assertEquals(TaskStatus.IN_PROGRESS, manager.getEpicById(epicId).getStatus(),
                 "Статус эпика должен был измениться на IN_PROGRESS");
 
-        manager.deleteSubTaskById(subTaskId);
+        subTask.setStatus(TaskStatus.IN_PROGRESS);
+        SubTask subTask2 = manager.getSubTaskById(subTaskId2);
+        subTask2.setStatus(TaskStatus.IN_PROGRESS);
+        manager.updateSubTask(subTask);
+        manager.updateSubTask(subTask2);
 
-        assertEquals(TaskStatus.NEW, manager.getEpicById(epicId).getStatus(),
-                "Статус эпика должен был измениться на NEW");
+        assertEquals(TaskStatus.IN_PROGRESS, manager.getEpicById(epicId).getStatus(),
+                "Статус эпика должен был остаться IN_PROGRESS");
     }
 
     @Test
