@@ -7,9 +7,9 @@ import ru.yandex.practicum.tasks.Task;
 import ru.yandex.practicum.tasks.TaskStatus;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class InMemoryTaskManager implements TaskManager {
     protected int taskCounter;
@@ -103,14 +103,17 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public int createTask(Task task) {
         task.setId(taskCounter);
-        tasks.put(taskCounter, task);
-        if (checkOverlaps(task)) {
-            System.out.println("Задача пересекается с другой задачей");
-            return 0;
+        int result = Stream.of(task)
+                .filter(this::haveTimeSlot)
+                .peek(newTask -> tasks.put(taskCounter, newTask))
+                .map(Task::getId)
+                .findFirst()
+                .orElse(0);
+        if(result != 0) {
+            increaseTaskCounter();
+            if(task.getStartTime() != null) prioritizedTasks.add(task);
         }
-        prioritizeTask(task);
-        increaseTaskCounter();
-        return task.getId();
+        return result;
     }
 
     @Override
@@ -124,41 +127,33 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public int createSubTask(SubTask subTask) {
         subTask.setId(taskCounter);
-        int epicId = subTask.getEpicId();
-        if (epicId == subTask.getId()) {
-            System.out.println("Нельзя сделать подзадачу своим собственным эпиком!");
-            return 0;
+        int result = Stream.of(subTask)
+                .filter(newSubTask -> newSubTask.getId() != newSubTask.getEpicId())
+                .filter(newSubTask -> isExistingTask("Epic", newSubTask.getEpicId()))
+                .filter(this::haveTimeSlot)
+                .peek(newSubTask -> subTasks.put(taskCounter, newSubTask))
+                .peek(newSubTask -> epics.get(newSubTask.getEpicId()).addSubTask(taskCounter))
+                .peek(newSubTask -> updateEpicStatus(newSubTask.getEpicId()))
+                .peek(newSubTask -> updateEpicTime(newSubTask.getEpicId()))
+                .map(SubTask::getId)
+                .findFirst()
+                .orElse(0);
+        if (result != 0) {
+            increaseTaskCounter();
+            if (subTask.getStartTime() != null) prioritizedTasks.add(subTask);
         }
-        if (!isExistingTask("Epic", epicId)) {
-            System.out.println("Эпика с идентификатором " + epicId + " указанным в подзадаче не существует");
-            return 0;
-        }
-        if (checkOverlaps(subTask)) {
-            System.out.println("Задача пересекается с другой задачей");
-            return 0;
-        }
-        subTasks.put(taskCounter, subTask);
-        epics.get(epicId).addSubTask(taskCounter);
-        updateEpicStatus(epicId);
-        updateEpicTime(epicId);
-        prioritizeTask(subTask);
-        increaseTaskCounter();
-        return subTask.getId();
+        return result;
     }
 
     @Override
     public void updateTask(Task task) {
-        int taskId = task.getId();
-        if (!isExistingTask("Task", taskId)) {
-            System.out.println("Задачи с идентификатором " + taskId + " не существует");
-            return;
-        }
-        if (checkOverlaps(task)) {
-            System.out.println("Задача пересекается с другой задачей");
-        }
-        prioritizedTasks.remove(task);
-        prioritizeTask(task);
-        tasks.put(taskId, task);
+        Stream.of(task)
+                .filter(updatedTask -> isExistingTask("Task", updatedTask.getId()))
+                .filter(this::haveTimeSlot)
+                .peek(updatedTask -> tasks.put(updatedTask.getId(), updatedTask))
+                .peek(prioritizedTasks::remove)
+                .findFirst()
+                .ifPresent(prioritizedTasks::add);
     }
 
     @Override
@@ -175,20 +170,15 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubTask(SubTask subTask) {
-        int subTaskId = subTask.getId();
-        if (!isExistingTask("SubTask", subTaskId)) {
-            System.out.println("Подзадачи с идентификатором " + subTaskId + " не существует");
-            return;
-        }
-        if (checkOverlaps(subTask)) {
-            System.out.println("Задача пересекается с другой задачей");
-        }
-        prioritizedTasks.remove(subTask);
-        prioritizeTask(subTask);
-        subTasks.put(subTaskId, subTask);
-        int epicId = subTask.getEpicId();
-        updateEpicStatus(epicId);
-        updateEpicTime(epicId);
+        Stream.of(subTask)
+                .filter(updatedSubTask -> isExistingTask("SubTask", updatedSubTask.getId()))
+                .filter(this::haveTimeSlot)
+                .peek(updatedSubTask -> subTasks.put(updatedSubTask.getId(), updatedSubTask))
+                .peek(updatedSubTask -> updateEpicStatus(updatedSubTask.getEpicId()))
+                .peek(updatedSubTask -> updateEpicTime(updatedSubTask.getEpicId()))
+                .peek(prioritizedTasks::remove)
+                .findFirst()
+                .ifPresent(prioritizedTasks::add);
     }
 
     @Override
@@ -308,20 +298,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     }
 
-    private void prioritizeTask(Task task) {
-        if (task.getStartTime() == null) {
-            return;
-        }
-        prioritizedTasks.add(task);
-    }
-
     private boolean isOverlapped(Task task1, Task task2) {
         return task1.getEndTime().isAfter(task2.getStartTime());
     }
 
-    private boolean checkOverlaps(Task task) {
+    private boolean haveTimeSlot(Task task) {
         return getPrioritizedTasks()
                 .stream()
-                .anyMatch(pTask -> isOverlapped(pTask, task));
+                .filter(pTask -> !pTask.equals(task))
+                .noneMatch(pTask -> isOverlapped(pTask, task));
     }
 }
