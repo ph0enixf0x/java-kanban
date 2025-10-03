@@ -1,6 +1,5 @@
 package ru.yandex.practicum.manager;
 
-import org.testng.internal.collections.Pair;
 import ru.yandex.practicum.tasks.Epic;
 import ru.yandex.practicum.tasks.SubTask;
 import ru.yandex.practicum.tasks.Task;
@@ -281,7 +280,8 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         epic.setDuration(Duration.ZERO);
-        Pair<Optional<SubTask>, Optional<SubTask>> datedSubTasks = epic.getSubtasksIds()
+
+        List<Optional<SubTask>> datedSubTasks = epic.getSubtasksIds()
                 .stream()
                 .map(subTasks::get)
                 .filter(subTask -> subTask.getStartTime() != null)
@@ -289,11 +289,11 @@ public class InMemoryTaskManager implements TaskManager {
                 .collect(Collectors.teeing(
                         Collectors.minBy(Comparator.comparing(Task::getStartTime)),
                         Collectors.maxBy(Comparator.comparing(Task::getStartTime)),
-                        Pair::new
+                        List::of
                 ));
-        datedSubTasks.first().ifPresentOrElse(subTask -> epic.setStartTime(subTask.getStartTime()),
+        datedSubTasks.getFirst().ifPresentOrElse(subTask -> epic.setStartTime(subTask.getStartTime()),
                 () -> epic.setStartTime(null));
-        datedSubTasks.second().ifPresentOrElse(subTask -> epic.setEndTime(subTask.getEndTime()),
+        datedSubTasks.getLast().ifPresentOrElse(subTask -> epic.setEndTime(subTask.getEndTime()),
                 () -> epic.setEndTime(null));
 
     }
