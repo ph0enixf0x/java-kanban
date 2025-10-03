@@ -322,6 +322,6 @@ public class InMemoryTaskManager implements TaskManager {
     private boolean checkOverlaps(Task task) {
         return getPrioritizedTasks()
                 .stream()
-                .anyMatch(pTask -> isOverlapped(task, pTask));
+                .anyMatch(pTask -> isOverlapped(pTask, task));
     }
 }
