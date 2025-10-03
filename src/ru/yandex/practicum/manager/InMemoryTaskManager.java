@@ -131,6 +131,10 @@ public class InMemoryTaskManager implements TaskManager {
     public int createTask(Task task) {
         task.setId(taskCounter);
         tasks.put(taskCounter, task);
+        if (checkOverlaps(task)) {
+            System.out.println("Задача пересекается с другой задачей");
+            return 0;
+        }
         prioritizeTask(task);
         increaseTaskCounter();
         return task.getId();
@@ -156,6 +160,10 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Эпика с идентификатором " + epicId + " указанным в подзадаче не существует");
             return 0;
         }
+        if (checkOverlaps(subTask)) {
+            System.out.println("Задача пересекается с другой задачей");
+            return 0;
+        }
         subTasks.put(taskCounter, subTask);
         epics.get(epicId).addSubTask(taskCounter);
         updateEpicStatus(epicId);
@@ -171,6 +179,9 @@ public class InMemoryTaskManager implements TaskManager {
         if (!isExistingTask("Task", taskId)) {
             System.out.println("Задачи с идентификатором " + taskId + " не существует");
             return;
+        }
+        if (checkOverlaps(task)) {
+            System.out.println("Задача пересекается с другой задачей");
         }
         prioritizedTasks.remove(task);
         prioritizeTask(task);
@@ -195,6 +206,9 @@ public class InMemoryTaskManager implements TaskManager {
         if (!isExistingTask("SubTask", subTaskId)) {
             System.out.println("Подзадачи с идентификатором " + subTaskId + " не существует");
             return;
+        }
+        if (checkOverlaps(subTask)) {
+            System.out.println("Задача пересекается с другой задачей");
         }
         prioritizedTasks.remove(subTask);
         prioritizeTask(subTask);
@@ -347,5 +361,15 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         prioritizedTasks.add(task);
+    }
+
+    private boolean isOverlapped(Task task1, Task task2) {
+        return task1.getEndTime().isAfter(task2.getStartTime());
+    }
+
+    private boolean checkOverlaps(Task task) {
+        return getPrioritizedTasks()
+                .stream()
+                .anyMatch(pTask -> isOverlapped(task, pTask));
     }
 }
