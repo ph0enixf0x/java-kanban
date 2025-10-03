@@ -196,11 +196,44 @@ abstract class TaskManagerTest<T extends TaskManager>
     }
 
     @Test
-    void getEpicSubTasks() {
+    void checkEpicSubTasks() {
         int epicId = manager.createEpic(expectedEpic);
         manager.createSubTask(expectedSubTask);
 
         assertEquals(1, manager.getEpicSubTasks(epicId).size(),
                 "Неверное количество подзадач у эпика");
+    }
+
+    @Test
+    void checkOverlappedTasks() {
+        int taskId = manager.createTask(expectedTask);
+        manager.createTask(new Task("Вторая задача", "Задача с пересекающейся датой",
+                LocalDateTime.now().plusMinutes(10), Duration.ofMinutes(60)));
+        assertEquals(1, manager.getTasks().size(),
+                "Не корректное количество задач в менеджере после добавления пересекающейся задачи");
+
+        Task task = manager.getTaskById(taskId);
+        LocalDateTime updatedTime = task.getStartTime().plusMinutes(10);
+        task.setStartTime(updatedTime);
+        manager.updateTask(task);
+        assertEquals(updatedTime, manager.getTaskById(taskId).getStartTime(),
+                "Не корректное время у обновленной задачи");
+    }
+
+    @Test
+    void checkOverlappedSubTasks() {
+        int epicId = manager.createEpic(expectedEpic);
+        int subTaskId = manager.createSubTask(expectedSubTask);
+        manager.createSubTask(new SubTask("Вторая подзадача", "Подзадача с пересекающимся временем",
+                LocalDateTime.now().plusDays(1).plusMinutes(59), Duration.ofMinutes(60), epicId));
+        assertEquals(1, manager.getSubTasks().size(),
+                "Не корректное количество подзадач в менеджере после добавления пересекающейся подзадачи");
+
+        SubTask subTask = manager.getSubTaskById(subTaskId);
+        LocalDateTime updatedTime = subTask.getStartTime().plusMinutes(10);
+        subTask.setStartTime(updatedTime);
+        manager.updateSubTask(subTask);
+        assertEquals(updatedTime, manager.getSubTaskById(subTaskId).getStartTime(),
+                "Не корректное время у обновленной подзадачи");
     }
 }
