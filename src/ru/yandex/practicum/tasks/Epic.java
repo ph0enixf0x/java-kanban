@@ -34,10 +34,6 @@ public class Epic extends Task {
 
     public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
 
-    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
-
-    public void setDuration(Duration duration) { this.duration = duration; }
-
     public void removeSubTask(Integer subtaskId) {
         subtasksIds.remove(subtaskId);
     }
