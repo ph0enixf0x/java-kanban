@@ -1,6 +1,9 @@
 package ru.yandex.practicum.manager;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import ru.yandex.practicum.tasks.*;
 
 import java.io.File;
@@ -12,35 +15,44 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileBackedTaskManagerTest {
+class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
+    private static File testFile;
+
+    @BeforeAll
+    static void beforeAll() throws IOException {
+        testFile = File.createTempFile("test", ".txt");
+    }
+
+    @BeforeEach
+    void beforeEach(TestInfo testInfo){
+        super.beforeEach(testInfo);
+        manager = new FileBackedTaskManager(testFile);
+    }
 
     @Test
-    void checkLoadFromEmptyFile() throws IOException {
-        File testFile = File.createTempFile("test", ".txt");
+    void checkLoadFromEmptyFile(){
         assertNotNull(FileBackedTaskManager.loadFromFile(testFile),
                     "Не удалось загрузить файловый менеджер из пустого файла");
     }
 
     @Test
     void checkLoadFromEmptyFileWithHeader() throws IOException {
-            File testFile = File.createTempFile("test", ".txt");
+            File testFile = File.createTempFile("testHeader", ".txt");
             try (FileWriter fr = new FileWriter(testFile)) {
-                String header = "id,type,name,status,description,epic\n";
+                String header = "id,type,name,status,description,start,duration,epic\n";
                 fr.write(header);
             }
             assertNotNull(FileBackedTaskManager.loadFromFile(testFile),
-                    "Не удалось загрузить файловый менеджер из пустого файла");
+                    "Не удалось загрузить файловый менеджер из пустого файла с шапкой");
     }
 
     @Test
-    void checkRestoreFromSaveFile() throws IOException {
-        File testFile = File.createTempFile("test", ".txt");
-        FileBackedTaskManager manager = FileBackedTaskManager.loadFromFile(testFile);
+    void checkRestoreFromSaveFile() {
         int taskId = manager.createTask(new Task("Первая задача", "Описание первой задачи",
                 LocalDateTime.now(), Duration.ofMinutes(60)));
         int epicId = manager.createEpic(new Epic("Первый эпик", "Описание первого эпика"));
         int subTaskId = manager.createSubTask(new SubTask("Первая подзадача", "Подзадача первого эпика",
-                LocalDateTime.now(), Duration.ofMinutes(60), epicId));
+                LocalDateTime.now().plusDays(1), Duration.ofMinutes(60), epicId));
         SubTask testSubTask = manager.getSubTaskById(subTaskId);
         testSubTask.setStatus(TaskStatus.DONE);
         manager.updateSubTask(testSubTask);
