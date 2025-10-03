@@ -22,7 +22,9 @@ public class Epic extends Task {
         return TaskType.EPIC;
     }
 
-    public LocalDateTime getEndTime() { return endTime; }
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
 
     public void addSubTask(int subtaskId) {
         if (subtaskId == id) {
@@ -32,7 +34,9 @@ public class Epic extends Task {
         subtasksIds.add(subtaskId);
     }
 
-    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
 
     public void removeSubTask(Integer subtaskId) {
         subtasksIds.remove(subtaskId);
