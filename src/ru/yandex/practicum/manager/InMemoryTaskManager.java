@@ -109,9 +109,9 @@ public class InMemoryTaskManager implements TaskManager {
                 .map(Task::getId)
                 .findFirst()
                 .orElse(0);
-        if(result != 0) {
+        if (result != 0) {
             increaseTaskCounter();
-            if(task.getStartTime() != null) prioritizedTasks.add(task);
+            if (task.getStartTime() != null) prioritizedTasks.add(task);
         }
         return result;
     }
