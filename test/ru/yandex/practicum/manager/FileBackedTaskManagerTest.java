@@ -11,6 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,11 +49,14 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     @Test
     void checkRestoreFromSaveFile() {
+        LocalDateTime testTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         int taskId = manager.createTask(new Task("Первая задача", "Описание первой задачи",
-                LocalDateTime.now(), Duration.ofMinutes(60)));
+                testTime, Duration.ofMinutes(60)));
         int epicId = manager.createEpic(new Epic("Первый эпик", "Описание первого эпика"));
         int subTaskId = manager.createSubTask(new SubTask("Первая подзадача", "Подзадача первого эпика",
-                LocalDateTime.now().plusDays(1), Duration.ofMinutes(60), epicId));
+                testTime.plusDays(1), Duration.ofMinutes(60), epicId));
+        manager.createSubTask(new SubTask("Вторая подзадача", "Подзадача первого эпика",
+                testTime.plusDays(2), Duration.ofMinutes(60), epicId));
         SubTask testSubTask = manager.getSubTaskById(subTaskId);
         testSubTask.setStatus(TaskStatus.DONE);
         manager.updateSubTask(testSubTask);
@@ -60,6 +64,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
         Task task = manager2.getTaskById(taskId);
         Epic epic = manager2.getEpicById(epicId);
         SubTask subTask = manager2.getSubTaskById(subTaskId);
+
         assertEquals(1, task.getId(),
                 "Идентификатор задачи не соответствует ожидаемому");
         assertEquals("Первая задача", task.getName(),
@@ -68,6 +73,10 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
                 "Описание задачи не соответствует ожидаемому");
         assertEquals(TaskStatus.NEW, task.getStatus(),
                 "Статус задачи не соответствует ожидаемому");
+        assertEquals(testTime, task.getStartTime(),
+                "Время начала выполнения задачи не соответствует ожидаемому");
+        assertEquals(Duration.ofMinutes(60), task.getDuration(),
+                "Длительность выполнения задачи не соответствует ожидаемому");
 
         assertEquals(2, epic.getId(),
                 "Идентификатор эпика не соответствует ожидаемому");
@@ -75,10 +84,16 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
                 "Название эпика не соответствует ожидаемому");
         assertEquals("Описание первого эпика", epic.getDescription(),
                 "Описание полученного эпика не соответствует ожидаемому");
-        assertEquals(TaskStatus.DONE, epic.getStatus(),
+        assertEquals(TaskStatus.IN_PROGRESS, epic.getStatus(),
                 "Статус эпика не соответствует ожидаемому");
-        assertEquals(List.of(3), epic.getSubtasksIds(),
+        assertEquals(List.of(3, 4), epic.getSubtasksIds(),
                 "Список подзадач эпика не соответствует ожидаемому");
+        assertEquals(testTime.plusDays(1), epic.getStartTime(),
+                "Время начала выполнения эпика не соответствует ожидаемому");
+        assertEquals(Duration.ofMinutes(120), epic.getDuration(),
+                "Длительность выполнения эпика не соответствует ожидаемому");
+        assertEquals(testTime.plusDays(2).plusMinutes(60), epic.getEndTime(),
+                "Время окончания выполнения эпика не соответствует ожидаемому");
 
         assertEquals(3, subTask.getId(),
                 "Идентификатор подзадачи не соответствует ожидаемому");
@@ -90,8 +105,14 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
                 "Статус подзадачи не соответствует ожидаемому");
         assertEquals(epicId, subTask.getEpicId(),
                 "Номер эпика полученной подзадачи не соответствует ожидаемому");
+        assertEquals(testTime.plusDays(1), subTask.getStartTime(),
+                "Время начала выполнения подзадачи не соответствует ожидаемому");
+        assertEquals(Duration.ofMinutes(60), subTask.getDuration(),
+                "Длительность выполнения подзадачи не соответствует ожидаемому");
 
-        assertEquals(4, manager2.taskCounter,
+        assertEquals(5, manager2.taskCounter,
                 "Номер следующей задачи в загруженном менеджере не соответствует ожидаемому");
+        assertEquals(manager.getPrioritizedTasks(), manager2.getPrioritizedTasks(),
+                "Приоритезированный список задач не соответствует ожидаемому");
     }
 }

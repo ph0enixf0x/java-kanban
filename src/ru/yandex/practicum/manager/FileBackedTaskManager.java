@@ -114,6 +114,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public String toString(Task task) {
         StringBuilder taskString = new StringBuilder();
+        TaskType taskType = task.getType();
         taskString.append(task.getId()).append(",");
         taskString.append(task.getType()).append(",");
         taskString.append(task.getName()).append(",");
@@ -126,8 +127,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             taskString.append(",");
             taskString.append(",");
         }
-        if (task.getType().equals(TaskType.SUBTASK)) {
+        if (taskType.equals(TaskType.SUBTASK)) {
             taskString.append(((SubTask) task).getEpicId());
+        }
+        if (taskType.equals(TaskType.EPIC)) {
+            taskString.append(task.getEndTime());
         }
         return taskString.toString();
     }
@@ -152,6 +156,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 Epic generatedEpic = new Epic(splitValue[2], splitValue[4]);
                 generatedEpic.setId(Integer.parseInt(splitValue[0]));
                 generatedEpic.setStatus(TaskStatus.valueOf(splitValue[3]));
+                generatedEpic.setStartTime(LocalDateTime.parse(splitValue[5]));
+                generatedEpic.setDuration(Duration.ofMinutes(Integer.parseInt(splitValue[6])));
+                generatedEpic.setEndTime(LocalDateTime.parse(splitValue[7]));
                 return generatedEpic;
             default:
                 System.out.println("Неизвестный тип задачи");
@@ -183,6 +190,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         switch (task.getType()) {
                             case TASK:
                                 loadedManager.tasks.put(task.getId(), task);
+                                loadedManager.prioritizedTasks.add(task);
                                 break;
                             case EPIC:
                                 loadedManager.epics.put(task.getId(), (Epic) task);
@@ -190,6 +198,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                             case SUBTASK:
                                 loadedManager.subTasks.put(task.getId(), (SubTask) task);
                                 loadedManager.epics.get(((SubTask) task).getEpicId()).addSubTask(task.getId());
+                                loadedManager.prioritizedTasks.add(task);
                         }
                     });
             loadedManager.taskCounter = Stream.of(loadedManager.getTasks(), loadedManager.getEpics(), loadedManager.getSubTasks())
