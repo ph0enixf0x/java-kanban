@@ -17,21 +17,23 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
-    private static File testFile;
-
-    @BeforeAll
-    static void beforeAll() throws IOException {
-        testFile = File.createTempFile("test", ".txt");
-    }
+    private File testFile;
 
     @BeforeEach
-    void beforeEach(TestInfo testInfo){
+    void beforeEach(TestInfo testInfo) {
         super.beforeEach(testInfo);
-        manager = new FileBackedTaskManager(testFile);
+        try {
+            testFile = File.createTempFile("test", ".txt");
+            manager = new FileBackedTaskManager(testFile);
+        } catch (IOException e) {
+            System.out.println("Возникла ошибка при создании тестового файла! Тест прерван.");
+            System.out.println(e.getMessage());
+            fail();
+        }
     }
 
     @Test
-    void checkLoadFromEmptyFile(){
+    void checkLoadFromEmptyFile() {
         assertNotNull(FileBackedTaskManager.loadFromFile(testFile),
                     "Не удалось загрузить файловый менеджер из пустого файла");
     }
@@ -50,6 +52,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     @Test
     void checkRestoreFromSaveFile() {
         LocalDateTime testTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+
         int taskId = manager.createTask(new Task("Первая задача", "Описание первой задачи",
                 testTime, Duration.ofMinutes(60)));
         int epicId = manager.createEpic(new Epic("Первый эпик", "Описание первого эпика"));
