@@ -110,7 +110,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createTask(Task task) {
-        if (!haveTimeSlot(task)) {
+        if (isBlockedByOtherTasks(task)) {
             System.out.println("Время новой задачи пересекается с другими задачами. Создание прервано");
             return 0;
         }
@@ -144,7 +144,7 @@ public class InMemoryTaskManager implements TaskManager {
                     "Создание прервано");
             return 0;
         }
-        if (!haveTimeSlot(subTask)) {
+        if (isBlockedByOtherTasks(subTask)) {
             System.out.println("Время новой подзадачи пересекается с другими задачами. Создание прервано");
             return 0;
         }
@@ -168,7 +168,7 @@ public class InMemoryTaskManager implements TaskManager {
                     "Обновление прервано");
             return;
         }
-        if (!haveTimeSlot(task)) {
+        if (isBlockedByOtherTasks(task)) {
             System.out.println("Обновленное время задачи пересекается с другими задачами. Обновление прервано");
             return;
         }
@@ -197,7 +197,7 @@ public class InMemoryTaskManager implements TaskManager {
                     "Обновление прервано");
             return;
         }
-        if (!haveTimeSlot(subTask)) {
+        if (isBlockedByOtherTasks(subTask)) {
             System.out.println("Обновленное время подзадачи пересекается с другими задачами. Обновление прервано");
             return;
         }
@@ -343,10 +343,10 @@ public class InMemoryTaskManager implements TaskManager {
                 || (start2.isEqual(start1) || start2.isBefore(start1)) && end2.isAfter(start1);
     }
 
-    private boolean haveTimeSlot(Task task) {
+    private boolean isBlockedByOtherTasks(Task task) {
         return getPrioritizedTasks()
                 .stream()
                 .filter(pTask -> !pTask.equals(task))
-                .noneMatch(pTask -> isOverlapped(pTask, task));
+                .anyMatch(pTask -> isOverlapped(pTask, task));
     }
 }
