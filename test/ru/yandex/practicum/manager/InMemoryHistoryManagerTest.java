@@ -8,6 +8,8 @@ import ru.yandex.practicum.tasks.Epic;
 import ru.yandex.practicum.tasks.SubTask;
 import ru.yandex.practicum.tasks.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,11 +23,13 @@ class InMemoryHistoryManagerTest {
 
     @BeforeAll
     static void beforeAll() {
-        expectedTask1 = new Task("Первая задача", "Описание первой задачи");
+        expectedTask1 = new Task("Первая задача", "Описание первой задачи",
+                LocalDateTime.now(), Duration.ofMinutes(60));
         expectedEpic1 = new Epic("Первый эпик", "Описание первого эпика");
         expectedEpic1.setId(1);
         expectedSubTask1 = new SubTask("Подзадача один",
-                "Первая подзадача первого эпика", 1);
+                "Первая подзадача первого эпика",
+                LocalDateTime.now(), Duration.ofMinutes(60), 1);
         expectedSubTask1.setId(2);
     }
 
@@ -36,11 +40,13 @@ class InMemoryHistoryManagerTest {
 
     @AfterEach
     void afterEach() {
-        expectedTask1 = new Task("Первая задача", "Описание первой задачи");
+        expectedTask1 = new Task("Первая задача", "Описание первой задачи",
+                LocalDateTime.now(), Duration.ofMinutes(60));
         expectedEpic1 = new Epic("Первый эпик", "Описание первого эпика");
         expectedEpic1.setId(1);
         expectedSubTask1 = new SubTask("Подзадача один",
-                "Первая подзадача первого эпика", 1);
+                "Первая подзадача первого эпика",
+                LocalDateTime.now(), Duration.ofMinutes(60), 1);
         expectedSubTask1.setId(2);
     }
 
