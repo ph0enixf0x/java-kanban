@@ -44,8 +44,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTasks() {
-        tasks.values().forEach(task -> history.remove(task.getId()));
-        tasks.values().forEach(prioritizedTasks::remove);
+        tasks.values().forEach(task -> {
+            history.remove(task.getId());
+            prioritizedTasks.remove(task);
+        });
         tasks.clear();
     }
 
@@ -59,12 +61,16 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteSubTasks() {
-        subTasks.values().forEach(subTask -> history.remove(subTask.getId()));
-        subTasks.values().forEach(prioritizedTasks::remove);
+        subTasks.values().forEach(subTask -> {
+            history.remove(subTask.getId());
+            prioritizedTasks.remove(subTask);
+        });
         subTasks.clear();
-        epics.values().forEach(Epic::clearSubTasks);
-        epics.values().forEach(epic -> updateEpicStatus(epic.getId()));
-        epics.values().forEach(epic -> updateEpicTime(epic.getId()));
+        epics.values().forEach( epic -> {
+            epic.clearSubTasks();
+            updateEpicStatus(epic.getId());
+            updateEpicTime(epic.getId());
+        });
     }
 
     @Override
@@ -206,8 +212,10 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Эпика с идентификатором " + epicId + " не существует");
             return;
         }
-        epics.get(epicId).getSubtasksIds().forEach(subTasks::remove);
-        epics.get(epicId).getSubtasksIds().forEach(history::remove);
+        epics.get(epicId).getSubtasksIds().forEach(subTask -> {
+            subTasks.remove(subTask);
+            history.remove(subTask);
+        });
         epics.remove(epicId);
         history.remove(epicId);
     }
