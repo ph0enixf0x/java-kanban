@@ -111,18 +111,16 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createTask(Task task) {
-        task.setId(taskCounter);
-        int result = Stream.of(task)
-                .filter(this::haveTimeSlot)
-                .peek(newTask -> tasks.put(taskCounter, newTask))
-                .map(Task::getId)
-                .findFirst()
-                .orElse(0);
-        if (result != 0) {
-            increaseTaskCounter();
-            if (task.getStartTime() != null) prioritizedTasks.add(task);
+        if (!haveTimeSlot(task)) {
+            System.out.println("Время новой задачи пересекается с другими задачами. Создание прервано");
+            return 0;
         }
-        return result;
+        int taskId = taskCounter;
+        task.setId(taskId);
+        tasks.put(taskId, task);
+        if (task.getStartTime() != null) prioritizedTasks.add(task);
+        increaseTaskCounter();
+        return taskId;
     }
 
     @Override
@@ -135,34 +133,49 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createSubTask(SubTask subTask) {
-        subTask.setId(taskCounter);
-        int result = Stream.of(subTask)
-                .filter(newSubTask -> newSubTask.getId() != newSubTask.getEpicId())
-                .filter(newSubTask -> isExistingTask("Epic", newSubTask.getEpicId()))
-                .filter(this::haveTimeSlot)
-                .peek(newSubTask -> subTasks.put(taskCounter, newSubTask))
-                .peek(newSubTask -> epics.get(newSubTask.getEpicId()).addSubTask(taskCounter))
-                .peek(newSubTask -> updateEpicStatus(newSubTask.getEpicId()))
-                .peek(newSubTask -> updateEpicTime(newSubTask.getEpicId()))
-                .map(SubTask::getId)
-                .findFirst()
-                .orElse(0);
-        if (result != 0) {
-            increaseTaskCounter();
-            if (subTask.getStartTime() != null) prioritizedTasks.add(subTask);
+        int subTaskId = taskCounter;
+        int epicId = subTask.getEpicId();
+        if (subTaskId == epicId) {
+            System.out.println("Идентификатор подзадачи равен указанному идентификатору связанного эпика. " +
+                    "Создание прервано");
+            return 0;
         }
-        return result;
+        if (!isExistingTask("Epic", epicId)) {
+            System.out.println("Указанного в подзадаче эпика с идентификатором " + epicId + " не существует. " +
+                    "Создание прервано");
+            return 0;
+        }
+        if (!haveTimeSlot(subTask)) {
+            System.out.println("Время новой подзадачи пересекается с другими задачами. Создание прервано");
+            return 0;
+        }
+        subTask.setId(subTaskId);
+        subTasks.put(subTaskId, subTask);
+        epics.get(epicId).addSubTask(subTaskId);
+        updateEpicStatus(epicId);
+        if (subTask.getStartTime() != null) {
+            prioritizedTasks.add(subTask);
+            updateEpicTime(epicId);
+        }
+        increaseTaskCounter();
+        return subTaskId;
     }
 
     @Override
     public void updateTask(Task task) {
-        Stream.of(task)
-                .filter(updatedTask -> isExistingTask("Task", updatedTask.getId()))
-                .filter(this::haveTimeSlot)
-                .peek(updatedTask -> tasks.put(updatedTask.getId(), updatedTask))
-                .peek(prioritizedTasks::remove)
-                .findFirst()
-                .ifPresent(prioritizedTasks::add);
+        int taskId = task.getId();
+        if (!isExistingTask("Task", taskId)) {
+            System.out.println("задачи с идентификатором " + taskId + " нет в списке задач. " +
+                    "Обновление прервано");
+            return;
+        }
+        if (!haveTimeSlot(task)) {
+            System.out.println("Обновленное время задачи пересекается с другими задачами. Обновление прервано");
+            return;
+        }
+        tasks.put(taskId, task);
+        prioritizedTasks.remove(task);
+        if (task.getStartTime() != null) prioritizedTasks.add(task);
     }
 
     @Override
@@ -192,9 +205,11 @@ public class InMemoryTaskManager implements TaskManager {
         int epicId = subTask.getEpicId();
         subTasks.put(subTaskId, subTask);
         updateEpicStatus(epicId);
-        updateEpicTime(epicId);
         prioritizedTasks.remove(subTask);
-        prioritizedTasks.add(subTask);
+        if (subTask.getStartTime() != null) {
+            prioritizedTasks.add(subTask);
+            updateEpicTime(epicId);
+        }
     }
 
     @Override
