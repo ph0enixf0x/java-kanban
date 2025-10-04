@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File saveFile;
-    private static final String SAVE_FILE_HEADER = "id,type,name,status,description,start,duration,epic\n";
+    private static final String SAVE_FILE_HEADER = "id,type,name,status,description,start,end,duration,epic\n";
 
     public FileBackedTaskManager(File saveFile) {
         super();
@@ -122,6 +122,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         taskString.append(task.getDescription()).append(",");
         if (task.getStartTime() != null) {
             taskString.append(task.getStartTime().truncatedTo(ChronoUnit.SECONDS)).append(",");
+            taskString.append(task.getEndTime()).append(",");
             taskString.append(task.getDuration().toMinutes()).append(",");
         } else {
             taskString.append(",");
@@ -129,9 +130,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
         if (taskType.equals(TaskType.SUBTASK)) {
             taskString.append(((SubTask) task).getEpicId());
-        }
-        if (taskType.equals(TaskType.EPIC)) {
-            taskString.append(task.getEndTime());
         }
         return taskString.toString();
     }
@@ -141,14 +139,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         switch (TaskType.valueOf(splitValue[1])) {
             case TASK:
                 Task generatedTask = new Task(splitValue[2], splitValue[4],
-                        LocalDateTime.parse(splitValue[5]), Duration.ofMinutes(Integer.parseInt(splitValue[6])));
+                        LocalDateTime.parse(splitValue[5]), Duration.ofMinutes(Integer.parseInt(splitValue[7])));
                 generatedTask.setId(Integer.parseInt(splitValue[0]));
                 generatedTask.setStatus(TaskStatus.valueOf(splitValue[3]));
                 return generatedTask;
             case SUBTASK:
                 SubTask generatedSubTask = new SubTask(splitValue[2], splitValue[4],
-                        LocalDateTime.parse(splitValue[5]), Duration.ofMinutes(Integer.parseInt(splitValue[6])),
-                        Integer.parseInt(splitValue[7]));
+                        LocalDateTime.parse(splitValue[5]), Duration.ofMinutes(Integer.parseInt(splitValue[7])),
+                        Integer.parseInt(splitValue[8]));
                 generatedSubTask.setId(Integer.parseInt(splitValue[0]));
                 generatedSubTask.setStatus(TaskStatus.valueOf(splitValue[3]));
                 return generatedSubTask;
@@ -157,8 +155,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 generatedEpic.setId(Integer.parseInt(splitValue[0]));
                 generatedEpic.setStatus(TaskStatus.valueOf(splitValue[3]));
                 generatedEpic.setStartTime(LocalDateTime.parse(splitValue[5]));
-                generatedEpic.setDuration(Duration.ofMinutes(Integer.parseInt(splitValue[6])));
-                generatedEpic.setEndTime(LocalDateTime.parse(splitValue[7]));
+                generatedEpic.setEndTime(LocalDateTime.parse(splitValue[6]));
+                generatedEpic.setDuration(Duration.ofMinutes(Integer.parseInt(splitValue[7])));
                 return generatedEpic;
             default:
                 System.out.println("Неизвестный тип задачи");
