@@ -1,6 +1,5 @@
 package ru.yandex.practicum.manager;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import ru.yandex.practicum.tasks.Epic;
@@ -21,10 +20,8 @@ abstract class TaskManagerTest<T extends TaskManager>
     protected Epic expectedEpic;
     protected SubTask expectedSubTask;
 
-
-    @BeforeEach
     void beforeEach(TestInfo testInfo) {
-        System.out.println("--- Выпоняется тест: " + testInfo.getDisplayName());
+        System.out.println("--- Выполняется тест: " + testInfo.getDisplayName());
         expectedTask = new Task("Первая задача", "Описание первой задачи",
                 LocalDateTime.now(), Duration.ofMinutes(60));
         expectedEpic = new Epic("Первый эпик", "Описание первого эпика");
