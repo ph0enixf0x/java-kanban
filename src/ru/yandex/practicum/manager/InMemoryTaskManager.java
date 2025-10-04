@@ -6,6 +6,7 @@ import ru.yandex.practicum.tasks.Task;
 import ru.yandex.practicum.tasks.TaskStatus;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -169,15 +170,22 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubTask(SubTask subTask) {
-        Stream.of(subTask)
-                .filter(updatedSubTask -> isExistingTask("SubTask", updatedSubTask.getId()))
-                .filter(this::haveTimeSlot)
-                .peek(updatedSubTask -> subTasks.put(updatedSubTask.getId(), updatedSubTask))
-                .peek(updatedSubTask -> updateEpicStatus(updatedSubTask.getEpicId()))
-                .peek(updatedSubTask -> updateEpicTime(updatedSubTask.getEpicId()))
-                .peek(prioritizedTasks::remove)
-                .findFirst()
-                .ifPresent(prioritizedTasks::add);
+        int subTaskId = subTask.getId();
+        if (!isExistingTask("SubTask", subTaskId)) {
+            System.out.println("Подзадачи с идентификатором " + subTaskId + " нет в списке подзадач. " +
+                    "Обновление прервано");
+            return;
+        }
+        if (!haveTimeSlot(subTask)) {
+            System.out.println("Обновленное время подзадачи пересекается с другими задачами. Обновление прервано");
+            return;
+        }
+        int epicId = subTask.getEpicId();
+        subTasks.put(subTaskId, subTask);
+        updateEpicStatus(epicId);
+        updateEpicTime(epicId);
+        prioritizedTasks.remove(subTask);
+        prioritizedTasks.add(subTask);
     }
 
     @Override
@@ -299,7 +307,14 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private boolean isOverlapped(Task task1, Task task2) {
-        return task1.getEndTime().isAfter(task2.getStartTime());
+        LocalDateTime start1 = task1.getStartTime();
+        LocalDateTime end1 = task1.getEndTime();
+
+        LocalDateTime start2 = task2.getStartTime();
+        LocalDateTime end2 = task2.getEndTime();
+
+        return (start1.isEqual(start2) || start1.isBefore(start2)) && end1.isAfter(start2)
+                || (start2.isEqual(start1) || start2.isBefore(start1)) && end2.isAfter(start1);
     }
 
     private boolean haveTimeSlot(Task task) {
