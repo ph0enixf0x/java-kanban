@@ -127,6 +127,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         } else {
             taskString.append(",");
             taskString.append(",");
+            taskString.append(",");
         }
         if (taskType.equals(TaskType.SUBTASK)) {
             taskString.append(((SubTask) task).getEpicId());
