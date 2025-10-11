@@ -33,13 +33,13 @@ public interface TaskManager {
 
     int updateTask(Task task);
 
-    void updateEpic(Epic epic);
+    int updateEpic(Epic epic);
 
     int updateSubTask(SubTask subTask);
 
     int deleteTaskById(int taskId);
 
-    void deleteEpicById(int epicId);
+    int deleteEpicById(int epicId);
 
     int deleteSubTaskById(int subTaskId);
 

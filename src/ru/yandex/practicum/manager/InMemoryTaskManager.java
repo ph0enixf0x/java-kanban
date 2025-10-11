@@ -179,15 +179,16 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateEpic(Epic epic) {
+    public int updateEpic(Epic epic) {
         int epicId = epic.getId();
         if (!isExistingTask("Epic", epicId)) {
             System.out.println("Эпика с идентификатором " + epicId + " не существует");
-            return;
+            return -1;
         }
         Epic updatedEpic = epics.get(epicId);
         updatedEpic.setName(epic.getName());
         updatedEpic.setDescription(epic.getDescription());
+        return 1;
     }
 
     @Override
@@ -226,10 +227,10 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteEpicById(int epicId) {
+    public int deleteEpicById(int epicId) {
         if (!epics.containsKey(epicId)) {
             System.out.println("Эпика с идентификатором " + epicId + " не существует");
-            return;
+            return -1;
         }
         epics.get(epicId).getSubtasksIds().forEach(subTask -> {
             subTasks.remove(subTask);
@@ -237,6 +238,7 @@ public class InMemoryTaskManager implements TaskManager {
         });
         epics.remove(epicId);
         history.remove(epicId);
+        return 1;
     }
 
     @Override

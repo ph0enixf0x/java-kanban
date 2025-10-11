@@ -68,9 +68,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateEpic(Epic epic) {
-        super.updateEpic(epic);
+    public int updateEpic(Epic epic) {
+        int result = super.updateEpic(epic);
         save();
+        return result;
     }
 
     @Override
@@ -88,9 +89,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void deleteEpicById(int epicId) {
-        super.deleteEpicById(epicId);
+    public int deleteEpicById(int epicId) {
+        int result = super.deleteEpicById(epicId);
         save();
+        return result;
     }
 
     @Override
