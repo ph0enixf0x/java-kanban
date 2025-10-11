@@ -5,9 +5,13 @@ import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import ru.yandex.practicum.manager.TaskManager;
+import ru.yandex.practicum.server.adapters.DurationAdapter;
+import ru.yandex.practicum.server.adapters.LocalDateTimeAdapter;
 import ru.yandex.practicum.tasks.Task;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class TasksHandler extends BaseHandler implements HttpHandler {
     public TasksHandler(TaskManager manager) {
@@ -17,7 +21,8 @@ public class TasksHandler extends BaseHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Task.class, new TaskSerialiser())
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .registerTypeAdapter(Duration.class, new DurationAdapter())
                 .create();
         switch (exchange.getRequestMethod()) {
             case "GET":
