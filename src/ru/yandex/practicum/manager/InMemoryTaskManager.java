@@ -161,20 +161,21 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateTask(Task task) {
+    public int updateTask(Task task) {
         int taskId = task.getId();
         if (!isExistingTask("Task", taskId)) {
             System.out.println("задачи с идентификатором " + taskId + " нет в списке задач. " +
                     "Обновление прервано");
-            return;
+            return -1;
         }
         if (isBlockedByOtherTasks(task)) {
             System.out.println("Обновленное время задачи пересекается с другими задачами. Обновление прервано");
-            return;
+            return 0;
         }
         tasks.put(taskId, task);
         prioritizedTasks.remove(task);
         if (task.getStartTime() != null) prioritizedTasks.add(task);
+        return 1;
     }
 
     @Override
