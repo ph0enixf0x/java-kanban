@@ -1,0 +1,27 @@
+package ru.yandex.practicum.server;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import ru.yandex.practicum.tasks.Task;
+
+import java.lang.reflect.Type;
+import java.time.temporal.ChronoUnit;
+
+public class TaskSerialiser implements JsonSerializer<Task> {
+
+    @Override
+    public JsonElement serialize(Task task, Type type, JsonSerializationContext jsonSerializationContext) {
+        JsonObject result = new JsonObject();
+
+        result.addProperty("id", task.getId());
+        result.addProperty("name", task.getName());
+        result.addProperty("description", task.getDescription());
+        result.addProperty("status", task.getStatus().toString());
+        result.addProperty("startTime", task.getStartTime().truncatedTo(ChronoUnit.SECONDS).toString());
+        result.addProperty("duration", task.getDuration().toMinutes());
+
+        return  result;
+    }
+}
