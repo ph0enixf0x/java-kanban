@@ -213,15 +213,15 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteTaskById(int taskId) {
+    public int deleteTaskById(int taskId) {
         if (!tasks.containsKey(taskId)) {
             System.out.println("Задачи с идентификатором " + taskId + " не существует");
-            return;
+            return -1;
         }
         prioritizedTasks.remove(tasks.get(taskId));
         tasks.remove(taskId);
         history.remove(taskId);
-
+        return 1;
     }
 
     @Override
