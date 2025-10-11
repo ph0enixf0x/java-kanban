@@ -7,6 +7,7 @@ import com.sun.net.httpserver.HttpHandler;
 import ru.yandex.practicum.manager.TaskManager;
 import ru.yandex.practicum.server.adapters.DurationAdapter;
 import ru.yandex.practicum.server.adapters.LocalDateTimeAdapter;
+import ru.yandex.practicum.tasks.SubTask;
 import ru.yandex.practicum.tasks.Task;
 
 import java.io.IOException;
@@ -25,15 +26,18 @@ public class TasksHandler extends BaseHandler implements HttpHandler {
                 .registerTypeAdapter(Duration.class, new DurationAdapter())
                 .create();
         String requestUri = exchange.getRequestURI().toString();
+        String method = exchange.getRequestMethod();
+
         if (requestUri.contains("/tasks")) {
             int taskId = 0;
-            if (requestUri.contains("tasks/")) {
+            boolean isIdEndpoint = requestUri.contains("tasks/");
+            if (isIdEndpoint) {
                 taskId = Integer.parseInt(
                         requestUri.substring(requestUri.lastIndexOf("/") + 1));
             }
-            switch (exchange.getRequestMethod()) {
+            switch (method) {
                 case "GET":
-                    if (requestUri.contains("tasks/")) {
+                    if (isIdEndpoint) {
                         Task task = manager.getTaskById(taskId);
                         if (task == null) {
                             sendNotFound(exchange);
@@ -45,7 +49,8 @@ public class TasksHandler extends BaseHandler implements HttpHandler {
                     }
                     break;
                 case "POST":
-                    Task task = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()), Task.class);
+                    Task task = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()),
+                            Task.class);
                     if (task.getId() == 0) {
                         if (manager.createTask(task) == 0) {
                             sendHasOverlaps(exchange);
@@ -53,15 +58,9 @@ public class TasksHandler extends BaseHandler implements HttpHandler {
                         }
                         sendCreated(exchange);
                     } else {
-                        int result = manager.updateTask(task);
-                        if (result == -1) {
-                            sendNotFound(exchange);
-                            return;
-                        } else if (result == 0) {
-                            sendHasOverlaps(exchange);
-                            return;
+                        if (isUpdated(exchange, manager.updateTask(task))) {
+                            sendCreated(exchange);
                         }
-                        sendCreated(exchange);
                     }
                     break;
                 case "DELETE":
@@ -74,8 +73,53 @@ public class TasksHandler extends BaseHandler implements HttpHandler {
                 default:
                     sendMethodNotAllowed(exchange);
             }
+        } else if (requestUri.contains("/subtasks")) {
+            int subtaskId = 0;
+            boolean isIdEndpoint = requestUri.contains("tasks/");
+            if (isIdEndpoint) {
+                subtaskId = Integer.parseInt(
+                        requestUri.substring(requestUri.lastIndexOf("/") + 1));
+            }
+            switch (method) {
+                case "GET":
+                    if (isIdEndpoint) {
+                        SubTask subtask = manager.getSubTaskById(subtaskId);
+                        if (subtask == null) {
+                            sendNotFound(exchange);
+                            return;
+                        }
+                        sendText(exchange, gson.toJson(subtask));
+                    } else {
+                        sendText(exchange, gson.toJson(manager.getSubTasks()));
+                    }
+                    break;
+                case "POST":
+                    SubTask subtask = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()),
+                            SubTask.class);
+                    if (subtask.getId() == 0) {
+                        if (manager.createSubTask(subtask) == 0) {
+                            sendHasOverlaps(exchange);
+                            return;
+                        }
+                        sendCreated(exchange);
+                    }
+                    if (isUpdated(exchange, manager.updateSubTask(subtask))) {
+                        sendCreated(exchange);
+                    }
+            }
         }
 
 
+    }
+
+    private boolean isUpdated(HttpExchange exchange, int result) throws IOException {
+        if (result == -1) {
+            sendNotFound(exchange);
+            return false;
+        } else if (result == 0) {
+            sendHasOverlaps(exchange);
+            return false;
+        }
+        return true;
     }
 }
