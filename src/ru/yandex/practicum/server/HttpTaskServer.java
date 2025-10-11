@@ -30,10 +30,12 @@ public class HttpTaskServer {
     public static HttpServer start() throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         server.start();
+        System.out.println("Сервер менеджера задач запущен на порте 8080");
         return server;
     }
 
     public static void stop(HttpServer server) {
         server.stop(5);
+        System.out.println("Сервер менеджера задач остановлен");
     }
 }
