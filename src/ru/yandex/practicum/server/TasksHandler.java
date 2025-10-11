@@ -106,6 +106,15 @@ public class TasksHandler extends BaseHandler implements HttpHandler {
                     if (isUpdated(exchange, manager.updateSubTask(subtask))) {
                         sendCreated(exchange);
                     }
+                case "DELETE":
+                    if (manager.deleteSubTaskById(subtaskId) == -1) {
+                        sendNotFound(exchange);
+                        return;
+                    }
+                    sendOk(exchange);
+                    break;
+                default:
+                    sendMethodNotAllowed(exchange);
             }
         }
 
