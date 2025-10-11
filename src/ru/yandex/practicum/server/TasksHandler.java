@@ -42,8 +42,17 @@ public class TasksHandler extends BaseHandler implements HttpHandler {
             case "POST":
                 Task task = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()), Task.class);
                 if (task.getId() == 0) {
-                    int result = manager.createTask(task);
-                    if (result == 0) {
+                    if (manager.createTask(task) == 0) {
+                        sendHasOverlaps(exchange);
+                        return;
+                    }
+                    sendNoText(exchange);
+                } else {
+                    int result = manager.updateTask(task);
+                    if (result == -1) {
+                        sendNotFound(exchange);
+                        return;
+                    } else if (result == 0) {
                         sendHasOverlaps(exchange);
                         return;
                     }
