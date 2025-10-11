@@ -11,7 +11,11 @@ public class HttpTaskServer {
         try {
             HttpServer server = start();
 
-            
+            server.createContext("/tasks", new TasksHandler());
+            server.createContext("/subtasks", new SubtasksHandler());
+            server.createContext("/epics", new EpicsHandler());
+            server.createContext("/history", new HistoryHandler());
+            server.createContext("/prioritized", new PrioritizedHandler());
         } catch (IOException e) {
             System.out.println("Что то пошло не так при работе сервера!");
             e.getStackTrace();
