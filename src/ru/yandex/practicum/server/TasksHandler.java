@@ -27,94 +27,87 @@ public class TasksHandler extends BaseHandler implements HttpHandler {
                 .create();
         String requestUri = exchange.getRequestURI().toString();
         String method = exchange.getRequestMethod();
+        String[] splitUri = requestUri.split("/");
+        int taskId = 0;
+        boolean haveId = splitUri.length == 3;
+        if (haveId) taskId = Integer.parseInt(splitUri[2]);
 
-        if (requestUri.contains("/tasks")) {
-            int taskId = 0;
-            boolean isIdEndpoint = requestUri.contains("tasks/");
-            if (isIdEndpoint) {
-                taskId = Integer.parseInt(
-                        requestUri.substring(requestUri.lastIndexOf("/") + 1));
-            }
-            switch (method) {
-                case "GET":
-                    if (isIdEndpoint) {
-                        Task task = manager.getTaskById(taskId);
-                        if (task == null) {
+        switch (splitUri[1]) {
+            case "tasks":
+                switch (method) {
+                    case "GET":
+                        if (haveId) {
+                            Task task = manager.getTaskById(taskId);
+                            if (task == null) {
+                                sendNotFound(exchange);
+                                return;
+                            }
+                            sendText(exchange, gson.toJson(task));
+                        } else {
+                            sendText(exchange, gson.toJson(manager.getTasks()));
+                        }
+                        break;
+                    case "POST":
+                        Task task = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()),
+                                Task.class);
+                        if (task.getId() == 0) {
+                            if (manager.createTask(task) == 0) {
+                                sendHasOverlaps(exchange);
+                                return;
+                            }
+                            sendCreated(exchange);
+                        } else {
+                            if (isUpdated(exchange, manager.updateTask(task))) {
+                                sendCreated(exchange);
+                            }
+                        }
+                        break;
+                    case "DELETE":
+                        if (manager.deleteTaskById(taskId) == -1) {
                             sendNotFound(exchange);
                             return;
                         }
-                        sendText(exchange, gson.toJson(task));
-                    } else {
-                        sendText(exchange, gson.toJson(manager.getTasks()));
-                    }
-                    break;
-                case "POST":
-                    Task task = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()),
-                            Task.class);
-                    if (task.getId() == 0) {
-                        if (manager.createTask(task) == 0) {
-                            sendHasOverlaps(exchange);
-                            return;
+                        sendOk(exchange);
+                        break;
+                    default:
+                        sendMethodNotAllowed(exchange);
+                }
+            case "/subtasks":
+                switch (method) {
+                    case "GET":
+                        if (haveId) {
+                            SubTask subtask = manager.getSubTaskById(taskId);
+                            if (subtask == null) {
+                                sendNotFound(exchange);
+                                return;
+                            }
+                            sendText(exchange, gson.toJson(subtask));
+                        } else {
+                            sendText(exchange, gson.toJson(manager.getSubTasks()));
                         }
-                        sendCreated(exchange);
-                    } else {
-                        if (isUpdated(exchange, manager.updateTask(task))) {
+                        break;
+                    case "POST":
+                        SubTask subtask = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()),
+                                SubTask.class);
+                        if (subtask.getId() == 0) {
+                            if (manager.createSubTask(subtask) == 0) {
+                                sendHasOverlaps(exchange);
+                                return;
+                            }
                             sendCreated(exchange);
                         }
-                    }
-                    break;
-                case "DELETE":
-                    if (manager.deleteTaskById(taskId) == -1) {
-                        sendNotFound(exchange);
-                        return;
-                    }
-                    sendOk(exchange);
-                    break;
-                default:
-                    sendMethodNotAllowed(exchange);
-            }
-        } else if (requestUri.contains("/subtasks")) {
-            int subtaskId = 0;
-            boolean isIdEndpoint = requestUri.contains("tasks/");
-            if (isIdEndpoint) {
-                subtaskId = Integer.parseInt(
-                        requestUri.substring(requestUri.lastIndexOf("/") + 1));
-            }
-            switch (method) {
-                case "GET":
-                    if (isIdEndpoint) {
-                        SubTask subtask = manager.getSubTaskById(subtaskId);
-                        if (subtask == null) {
+                        if (isUpdated(exchange, manager.updateSubTask(subtask))) {
+                            sendCreated(exchange);
+                        }
+                    case "DELETE":
+                        if (manager.deleteSubTaskById(taskId) == -1) {
                             sendNotFound(exchange);
                             return;
                         }
-                        sendText(exchange, gson.toJson(subtask));
-                    } else {
-                        sendText(exchange, gson.toJson(manager.getSubTasks()));
-                    }
-                    break;
-                case "POST":
-                    SubTask subtask = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()),
-                            SubTask.class);
-                    if (subtask.getId() == 0) {
-                        if (manager.createSubTask(subtask) == 0) {
-                            sendHasOverlaps(exchange);
-                            return;
-                        }
-                        sendCreated(exchange);
-                    }
-                    if (isUpdated(exchange, manager.updateSubTask(subtask))) {
-                        sendCreated(exchange);
-                    }
-                case "DELETE":
-                    if (manager.deleteSubTaskById(subtaskId) == -1) {
-                        sendNotFound(exchange);
-                        return;
-                    }
-                    sendOk(exchange);
-                    break;
-                default:
-                    sendMethodNotAllowed(exchange);
+                        sendOk(exchange);
+                        break;
+                    default:
+                        sendMethodNotAllowed(exchange);
             }
         }
 
