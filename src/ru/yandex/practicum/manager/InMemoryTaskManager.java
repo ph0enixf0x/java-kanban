@@ -191,16 +191,16 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateSubTask(SubTask subTask) {
+    public int updateSubTask(SubTask subTask) {
         int subTaskId = subTask.getId();
         if (!isExistingTask("SubTask", subTaskId)) {
             System.out.println("Подзадачи с идентификатором " + subTaskId + " нет в списке подзадач. " +
                     "Обновление прервано");
-            return;
+            return -1;
         }
         if (isBlockedByOtherTasks(subTask)) {
             System.out.println("Обновленное время подзадачи пересекается с другими задачами. Обновление прервано");
-            return;
+            return 0;
         }
         int epicId = subTask.getEpicId();
         subTasks.put(subTaskId, subTask);
@@ -210,6 +210,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (subTask.getStartTime() != null) {
             prioritizedTasks.add(subTask);
         }
+        return 1;
     }
 
     @Override
