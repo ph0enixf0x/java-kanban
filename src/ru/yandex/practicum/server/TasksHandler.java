@@ -39,6 +39,16 @@ public class TasksHandler extends BaseHandler implements HttpHandler {
                     sendText(exchange, gson.toJson(manager.getTasks()));
                 }
                 break;
+            case "POST":
+                Task task = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()), Task.class);
+                if (task.getId() == 0) {
+                    int result = manager.createTask(task);
+                    if (result == 0) {
+                        sendHasOverlaps(exchange);
+                        return;
+                    }
+                    sendNoText(exchange);
+                }
         }
     }
 }
