@@ -24,52 +24,58 @@ public class TasksHandler extends BaseHandler implements HttpHandler {
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .registerTypeAdapter(Duration.class, new DurationAdapter())
                 .create();
-        switch (exchange.getRequestMethod()) {
-            case "GET":
-                String requestGetUri = exchange.getRequestURI().toString();
-                if (requestGetUri.contains("tasks/")) {
-                    Task task = manager.getTaskById(Integer.parseInt(
-                            requestGetUri.substring(requestGetUri.lastIndexOf("/") + 1)));
-                    if (task == null) {
+        String requestUri = exchange.getRequestURI().toString();
+        if (requestUri.contains("/tasks")) {
+            int taskId = 0;
+            if (requestUri.contains("tasks/")) {
+                taskId = Integer.parseInt(
+                        requestUri.substring(requestUri.lastIndexOf("/") + 1));
+            }
+            switch (exchange.getRequestMethod()) {
+                case "GET":
+                    if (requestUri.contains("tasks/")) {
+                        Task task = manager.getTaskById(taskId);
+                        if (task == null) {
+                            sendNotFound(exchange);
+                            return;
+                        }
+                        sendText(exchange, gson.toJson(task));
+                    } else {
+                        sendText(exchange, gson.toJson(manager.getTasks()));
+                    }
+                    break;
+                case "POST":
+                    Task task = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()), Task.class);
+                    if (task.getId() == 0) {
+                        if (manager.createTask(task) == 0) {
+                            sendHasOverlaps(exchange);
+                            return;
+                        }
+                        sendCreated(exchange);
+                    } else {
+                        int result = manager.updateTask(task);
+                        if (result == -1) {
+                            sendNotFound(exchange);
+                            return;
+                        } else if (result == 0) {
+                            sendHasOverlaps(exchange);
+                            return;
+                        }
+                        sendCreated(exchange);
+                    }
+                    break;
+                case "DELETE":
+                    if (manager.deleteTaskById(taskId) == -1) {
                         sendNotFound(exchange);
                         return;
                     }
-                    sendText(exchange, gson.toJson(task));
-                } else {
-                    sendText(exchange, gson.toJson(manager.getTasks()));
-                }
-                break;
-            case "POST":
-                Task task = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()), Task.class);
-                if (task.getId() == 0) {
-                    if (manager.createTask(task) == 0) {
-                        sendHasOverlaps(exchange);
-                        return;
-                    }
-                    sendCreated(exchange);
-                } else {
-                    int result = manager.updateTask(task);
-                    if (result == -1) {
-                        sendNotFound(exchange);
-                        return;
-                    } else if (result == 0) {
-                        sendHasOverlaps(exchange);
-                        return;
-                    }
-                    sendCreated(exchange);
-                }
-                break;
-            case "DELETE":
-                String requestDeleteUri = exchange.getRequestURI().toString();
-                if (manager.deleteTaskById(Integer.parseInt(
-                        requestDeleteUri.substring(requestDeleteUri.lastIndexOf("/") + 1))) == -1) {
-                    sendNotFound(exchange);
-                    return;
-                }
-                sendOk(exchange);
-                break;
-            default:
-                sendMethodNotAllowed(exchange);
+                    sendOk(exchange);
+                    break;
+                default:
+                    sendMethodNotAllowed(exchange);
+            }
         }
+
+
     }
 }
