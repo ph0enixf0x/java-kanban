@@ -240,10 +240,10 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteSubTaskById(int subTaskId) {
+    public int deleteSubTaskById(int subTaskId) {
         if (!subTasks.containsKey(subTaskId)) {
             System.out.println("Подзадачи с идентификатором " + subTaskId + " не существует.");
-            return;
+            return -1;
         }
         int epicId = subTasks.get(subTaskId).getEpicId();
         epics.get(epicId).removeSubTask(subTaskId);
@@ -252,6 +252,7 @@ public class InMemoryTaskManager implements TaskManager {
         subTasks.remove(subTaskId);
         history.remove(subTaskId);
         updateEpicTime(epicId);
+        return 1;
     }
 
     @Override

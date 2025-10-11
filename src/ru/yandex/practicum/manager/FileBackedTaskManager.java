@@ -94,9 +94,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void deleteSubTaskById(int subTaskId) {
-        super.deleteSubTaskById(subTaskId);
+    public int deleteSubTaskById(int subTaskId) {
+        int result = super.deleteSubTaskById(subTaskId);
         save();
+        return result;
     }
 
     public File getSaveFile() {
