@@ -26,10 +26,10 @@ public class TasksHandler extends BaseHandler implements HttpHandler {
                 .create();
         switch (exchange.getRequestMethod()) {
             case "GET":
-                String requestUri = exchange.getRequestURI().toString();
-                if (requestUri.contains("tasks/")) {
+                String requestGetUri = exchange.getRequestURI().toString();
+                if (requestGetUri.contains("tasks/")) {
                     Task task = manager.getTaskById(Integer.parseInt(
-                            requestUri.substring(requestUri.lastIndexOf("/") + 1)));
+                            requestGetUri.substring(requestGetUri.lastIndexOf("/") + 1)));
                     if (task == null) {
                         sendNotFound(exchange);
                         return;
@@ -46,7 +46,7 @@ public class TasksHandler extends BaseHandler implements HttpHandler {
                         sendHasOverlaps(exchange);
                         return;
                     }
-                    sendNoText(exchange);
+                    sendCreated(exchange);
                 } else {
                     int result = manager.updateTask(task);
                     if (result == -1) {
@@ -56,8 +56,20 @@ public class TasksHandler extends BaseHandler implements HttpHandler {
                         sendHasOverlaps(exchange);
                         return;
                     }
-                    sendNoText(exchange);
+                    sendCreated(exchange);
                 }
+                break;
+            case "DELETE":
+                String requestDeleteUri = exchange.getRequestURI().toString();
+                if (manager.deleteTaskById(Integer.parseInt(
+                        requestDeleteUri.substring(requestDeleteUri.lastIndexOf("/") + 1))) == -1) {
+                    sendNotFound(exchange);
+                    return;
+                }
+                sendOk(exchange);
+                break;
+            default:
+                sendMethodNotAllowed(exchange);
         }
     }
 }
