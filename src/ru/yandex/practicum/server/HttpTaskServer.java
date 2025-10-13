@@ -36,8 +36,8 @@ public class HttpTaskServer {
         return server;
     }
 
-    public static void stop(HttpServer server) {
-        server.stop(5);
+    public static void stop(HttpServer server, int delay) {
+        server.stop(delay);
         System.out.println("Сервер менеджера задач остановлен");
     }
 }
