@@ -10,7 +10,6 @@ import ru.yandex.practicum.tasks.Task;
 import ru.yandex.practicum.tasks.TaskStatus;
 
 import java.io.IOException;
-import java.util.List;
 
 public class TaskHandler extends BaseHandler implements HttpHandler {
     public TaskHandler(TaskManager manager) {
