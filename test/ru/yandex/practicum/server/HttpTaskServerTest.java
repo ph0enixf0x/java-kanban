@@ -50,20 +50,22 @@ class HttpTaskServerTest {
 
     @Test
     void checkTasksEndpoint() throws IOException, InterruptedException {
-        String taskJson = "{\n" +
-                "\t\"name\": \"Первая задача\",\n" +
-                "\t\"description\": \"Описание первой задачи\",\n" +
-                "\t\"startTime\": \"2025-10-12T14:45:22\",\n" +
-                "\t\"duration\": 60\n" +
-                "}";
-        String updatedTaskJson = "{\n" +
-                "\t\"id\": 1,\n" +
-                "\t\"name\": \"Первая задача с новым названием\",\n" +
-                "\t\"description\": \"Новое описание первой задачи\",\n" +
-                "\t\"status\": \"IN_PROGRESS\",\n" +
-                "\t\"startTime\": \"2025-10-13T14:45:22\",\n" +
-                "\t\"duration\": 120\n" +
-                "}";
+        String taskJson = """
+                {
+                \t"name": "Первая задача",
+                \t"description": "Описание первой задачи",
+                \t"startTime": "2025-10-12T14:45:22",
+                \t"duration": 60
+                }""";
+        String updatedTaskJson = """
+                {
+                \t"id": 1,
+                \t"name": "Первая задача с новым названием",
+                \t"description": "Новое описание первой задачи",
+                \t"status": "IN_PROGRESS",
+                \t"startTime": "2025-10-13T14:45:22",
+                \t"duration": 120
+                }""";
 
         HttpResponse<String> response = client.send(HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(taskJson))
@@ -149,22 +151,25 @@ class HttpTaskServerTest {
 
     @Test
     void checkEpicsEndpoint() throws IOException, InterruptedException {
-        String epicJson = "{\n" +
-                "\t\"name\": \"Эпик один\",\n" +
-                "\t\"description\": \"Первый Эпик\"\n" +
-                "}";
-        String updatedEpicJson = "{\n" +
-                "\t\"id\": 1,\n" +
-                "\t\"name\": \"Новое название эпика один\",\n" +
-                "\t\"description\": \"Новое описание первого эпика\"\n" +
-                "}";
-        String subtaskJson = "{\n" +
-                "\t\"epicId\": 1,\n" +
-                "\t\"name\": \"Подзадача один\",\n" +
-                "\t\"description\": \"Первая подзадача первого эпика\",\n" +
-                "\t\"startTime\": \"2025-10-16T16:24:59\",\n" +
-                "\t\"duration\": 120\n" +
-                "}";
+        String epicJson = """
+                {
+                \t"name": "Эпик один",
+                \t"description": "Первый Эпик"
+                }""";
+        String updatedEpicJson = """
+                {
+                \t"id": 1,
+                \t"name": "Новое название эпика один",
+                \t"description": "Новое описание первого эпика"
+                }""";
+        String subtaskJson = """
+                {
+                \t"epicId": 1,
+                \t"name": "Подзадача один",
+                \t"description": "Первая подзадача первого эпика",
+                \t"startTime": "2025-10-16T16:24:59",
+                \t"duration": 120
+                }""";
 
         HttpResponse<String> response = client.send(HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(epicJson))
@@ -270,26 +275,29 @@ class HttpTaskServerTest {
 
     @Test
     void checkSubtasksEndpoint() throws IOException, InterruptedException {
-        String epicJson = "{\n" +
-                "\t\"name\": \"Эпик один\",\n" +
-                "\t\"description\": \"Первый Эпик\"\n" +
-                "}";
-        String subtaskJson = "{\n" +
-                "\t\"epicId\": 1,\n" +
-                "\t\"name\": \"Подзадача один\",\n" +
-                "\t\"description\": \"Первая подзадача первого эпика\",\n" +
-                "\t\"startTime\": \"2025-10-16T16:24:59\",\n" +
-                "\t\"duration\": 120\n" +
-                "}";
-        String updatedSubtaskJson = "{\n" +
-                "\t\"id\": 2,\n" +
-                "\t\"epicId\": 1,\n" +
-                "\t\"name\": \"Новое название первой подзадачи\",\n" +
-                "\t\"description\": \"Новое описание первой подзадачи\",\n" +
-                "\t\"status\": \"IN_PROGRESS\",\n" +
-                "\t\"startTime\": \"2025-10-17T16:24:59\",\n" +
-                "\t\"duration\": 60\n" +
-                "}";
+        String epicJson = """
+                {
+                \t"name": "Эпик один",
+                \t"description": "Первый Эпик"
+                }""";
+        String subtaskJson = """
+                {
+                \t"epicId": 1,
+                \t"name": "Подзадача один",
+                \t"description": "Первая подзадача первого эпика",
+                \t"startTime": "2025-10-16T16:24:59",
+                \t"duration": 120
+                }""";
+        String updatedSubtaskJson = """
+                {
+                \t"id": 2,
+                \t"epicId": 1,
+                \t"name": "Новое название первой подзадачи",
+                \t"description": "Новое описание первой подзадачи",
+                \t"status": "IN_PROGRESS",
+                \t"startTime": "2025-10-17T16:24:59",
+                \t"duration": 60
+                }""";
 
         HttpResponse<String> response = client.send(HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(epicJson))
