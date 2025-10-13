@@ -1,5 +1,6 @@
 package ru.yandex.practicum.manager;
 
+import ru.yandex.practicum.exception.NotFoundException;
 import ru.yandex.practicum.tasks.Epic;
 import ru.yandex.practicum.tasks.SubTask;
 import ru.yandex.practicum.tasks.Task;
@@ -82,8 +83,7 @@ public class InMemoryTaskManager implements TaskManager {
             history.add(task);
             return task;
         }
-        System.out.println("Задачи с идентификатором " + taskId + " не существует");
-        return null;
+        throw new NotFoundException("Задачи с идентификатором " + taskId + " не существует");
     }
 
     @Override
@@ -93,8 +93,7 @@ public class InMemoryTaskManager implements TaskManager {
             history.add(epic);
             return epic;
         }
-        System.out.println("Эпика с идентификатором " + epicId + " не существует");
-        return null;
+        throw new NotFoundException("Эпика с идентификатором " + epicId + " не существует");
     }
 
     @Override
@@ -104,8 +103,7 @@ public class InMemoryTaskManager implements TaskManager {
             history.add(subTask);
             return subTask;
         }
-        System.out.println("Подзадачи с идентификатором " + subTaskId + " не существует");
-        return null;
+        throw new NotFoundException("Подзадачи с идентификатором " + subTaskId + " не существует");
     }
 
     @Override

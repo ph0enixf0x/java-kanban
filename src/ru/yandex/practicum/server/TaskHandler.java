@@ -2,6 +2,7 @@ package ru.yandex.practicum.server;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import ru.yandex.practicum.exception.NotFoundException;
 import ru.yandex.practicum.manager.TaskManager;
 import ru.yandex.practicum.tasks.Epic;
 import ru.yandex.practicum.tasks.SubTask;
@@ -31,13 +32,12 @@ public class TaskHandler extends BaseHandler implements HttpHandler {
                 switch (method) {
                     case "GET":
                         if (taskId != 0) {
-                            Task task = manager.getTaskById(taskId);
-                            System.out.println(task);
-                            if (task == null) {
+                            try {
+                                sendText(exchange, gson.toJson(manager.getTaskById(taskId)));
+                            } catch (NotFoundException e) {
+                                System.out.println(e.getMessage());
                                 sendNotFound(exchange);
-                                return;
                             }
-                            sendText(exchange, gson.toJson(task));
                         } else {
                             sendText(exchange, gson.toJson(manager.getTasks()));
                         }
@@ -81,12 +81,12 @@ public class TaskHandler extends BaseHandler implements HttpHandler {
                 switch (method) {
                     case "GET":
                         if (taskId != 0) {
-                            SubTask subtask = manager.getSubTaskById(taskId);
-                            if (subtask == null) {
+                            try {
+                                sendText(exchange, gson.toJson(manager.getSubTaskById(taskId)));
+                            } catch (NotFoundException e) {
+                                System.out.println(e.getMessage());
                                 sendNotFound(exchange);
-                                return;
                             }
-                            sendText(exchange, gson.toJson(subtask));
                         } else {
                             sendText(exchange, gson.toJson(manager.getSubTasks()));
                         }
@@ -130,16 +130,17 @@ public class TaskHandler extends BaseHandler implements HttpHandler {
                 switch (method) {
                     case "GET":
                         if (taskId != 0) {
-                            Epic epic = manager.getEpicById(taskId);
-                            if (epic == null) {
+                            try {
+                                Epic epic = manager.getEpicById(taskId);
+                                if (splitUri[3].equals("subtasks")) {
+                                    sendText(exchange, gson.toJson(manager.getEpicSubTasks(taskId)));
+                                    return;
+                                }
+                                sendText(exchange, gson.toJson(epic));
+                            } catch (NotFoundException e) {
+                                System.out.println(e.getMessage());
                                 sendNotFound(exchange);
-                                return;
                             }
-                            if (splitUri[3].equals("subtasks")) {
-                                sendText(exchange, gson.toJson(manager.getEpicSubTasks(taskId)));
-                                return;
-                            }
-                            sendText(exchange, gson.toJson(epic));
                         } else {
                             sendText(exchange, gson.toJson(manager.getEpics()));
                         }
