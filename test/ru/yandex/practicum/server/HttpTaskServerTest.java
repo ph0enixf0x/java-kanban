@@ -81,7 +81,7 @@ class HttpTaskServerTest {
                 .header("Accept", "application/json")
                 .build(), HttpResponse.BodyHandlers.ofString());
         assertEquals(406, response.statusCode(),
-                "Код ответа при создании новой задачи отличается от ожидаемого");
+                "Код ответа при попытке создания пересекающейся задачи отличается от ожидаемого");
 
         response = client.send(HttpRequest.newBuilder()
                 .GET()
@@ -117,7 +117,7 @@ class HttpTaskServerTest {
                 .header("Accept", "application/json")
                 .build(), HttpResponse.BodyHandlers.ofString());
         assertEquals(200, response.statusCode(),
-                "Код ответа при получении задачи отличается от ожидаемого");
+                "Код ответа при получении задачи по идентификатору отличается от ожидаемого");
         assertEquals("{" +
                 "\"id\":1," +
                 "\"name\":\"Первая задача с новым названием\"," +
@@ -135,7 +135,7 @@ class HttpTaskServerTest {
                 .header("Accept", "application/json")
                 .build(), HttpResponse.BodyHandlers.ofString());
         assertEquals(200, response.statusCode(),
-                "Код ответа при получении задачи отличается от ожидаемого");
+                "Код ответа при удалении задачи отличается от ожидаемого");
 
         response = client.send(HttpRequest.newBuilder()
                 .GET()
@@ -144,6 +144,127 @@ class HttpTaskServerTest {
                 .header("Accept", "application/json")
                 .build(), HttpResponse.BodyHandlers.ofString());
         assertEquals(404, response.statusCode(),
-                "Код ответа при получении задачи отличается от ожидаемого");
+                "Код ответа при запросе несуществующей задачи отличается от ожидаемого");
+    }
+
+    @Test
+    void checkEpicsEndpoint() throws IOException, InterruptedException {
+        String epicJson = "{\n" +
+                "\t\"name\": \"Эпик один\",\n" +
+                "\t\"description\": \"Первый Эпик\"\n" +
+                "}";
+        String updatedEpicJson = "{\n" +
+                "\t\"id\": 1,\n" +
+                "\t\"name\": \"Новое название эпика один\",\n" +
+                "\t\"description\": \"Новое описание первого эпика\"\n" +
+                "}";
+        String subtaskJson = "{\n" +
+                "\t\"epicId\": 1,\n" +
+                "\t\"name\": \"Подзадача один\",\n" +
+                "\t\"description\": \"Первая подзадача первого эпика\",\n" +
+                "\t\"startTime\": \"2025-10-16T16:24:59\",\n" +
+                "\t\"duration\": 120\n" +
+                "}";
+
+        HttpResponse<String> response = client.send(HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(epicJson))
+                .uri(URI.create(host + "epics"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, response.statusCode(),
+                "Код ответа при создании нового эпика отличается от ожидаемого");
+
+        response = client.send(HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(host + "epics"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode(),
+                "Код ответа при получении созданных эпиков отличается от ожидаемого");
+        assertEquals("[{" +
+                        "\"subtasksIds\":[]," +
+                        "\"id\":1," +
+                        "\"name\":\"Эпик один\"," +
+                        "\"description\":\"Первый Эпик\"," +
+                        "\"status\":\"NEW\"," +
+                        "\"duration\":0" +
+                        "}]", response.body(),
+                "Возвращенный эпик отличается от ожидаемого");
+
+        response = client.send(HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(updatedEpicJson))
+                .uri(URI.create(host + "epics"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, response.statusCode(),
+                "Код ответа при обновлении эпика отличается от ожидаемого");
+
+        response = client.send(HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(subtaskJson))
+                .uri(URI.create(host + "subtasks"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, response.statusCode(),
+                "Код ответа при создании новой подзадачи отличается от ожидаемого");
+
+        response = client.send(HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(host + "epics/1"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode(),
+                "Код ответа при получении эпика по идентификатору отличается от ожидаемого");
+        assertEquals("{" +
+                        "\"subtasksIds\":[2]," +
+                        "\"endTime\":\"2025-10-16T18:24:59\"," +
+                        "\"id\":1," +
+                        "\"name\":\"Новое название эпика один\"," +
+                        "\"description\":\"Новое описание первого эпика\"," +
+                        "\"status\":\"NEW\"," +
+                        "\"startTime\":\"2025-10-16T16:24:59\"," +
+                        "\"duration\":120}", response.body(),
+                "Возвращенный обновленный эпик отличается от ожидаемого");
+
+        response = client.send(HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(host + "epics/1/subtasks"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode(),
+                "Код ответа при получении списка подзадач эпика отличается от ожидаемого");
+        assertEquals("[{" +
+                        "\"epicId\":1," +
+                        "\"id\":2," +
+                        "\"name\":\"Подзадача один\"," +
+                        "\"description\":\"Первая подзадача первого эпика\"," +
+                        "\"status\":\"NEW\"," +
+                        "\"startTime\":\"2025-10-16T16:24:59\"," +
+                        "\"duration\":120}" +
+                        "]", response.body(),
+                "Возвращенный список подзадач эпика отличается от ожидаемого");
+
+        response = client.send(HttpRequest.newBuilder()
+                .DELETE()
+                .uri(URI.create(host + "epics/1"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode(),
+                "Код ответа при удалении эпика отличается от ожидаемого");
+
+        response = client.send(HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(host + "epics/1"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(404, response.statusCode(),
+                "Код ответа при запросе несуществующего эпика отличается от ожидаемого");
     }
 }
