@@ -132,7 +132,7 @@ public class TaskHandler extends BaseHandler implements HttpHandler {
                         if (taskId != 0) {
                             try {
                                 Epic epic = manager.getEpicById(taskId);
-                                if (splitUri[3].equals("subtasks")) {
+                                if (splitUri.length == 4 && splitUri[3].equals("subtasks")) {
                                     sendText(exchange, gson.toJson(manager.getEpicSubTasks(taskId)));
                                     return;
                                 }
@@ -148,23 +148,19 @@ public class TaskHandler extends BaseHandler implements HttpHandler {
                     case "POST":
                         Epic decodedEpic = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()),
                                 Epic.class);
-                        TaskStatus epicStatus = decodedEpic.getStatus();
-                        List<Integer> subtaskIds = decodedEpic.getSubtasksIds();
+                        int epicId = decodedEpic.getId();
 
                         Epic epic = new Epic(decodedEpic.getName(), decodedEpic.getDescription());
-                        epic.setId(decodedEpic.getId());
-                        if (epicStatus != null) {
-                            epic.setStatus(epicStatus);
-                        }
-                        if (subtaskIds != null) {
-                            subtaskIds.forEach(epic::addSubTask);
-                        }
+                        epic.setId(epicId);
 
-                        if (epic.getId() == 0) {
+                        if (epicId == 0) {
+                            epic.setStatus(TaskStatus.NEW);
                             manager.createEpic(epic);
                             sendCreated(exchange);
                             return;
                         }
+                        epic.setStatus(manager.getEpicById(epicId).getStatus());
+                        manager.getEpicSubTasks(epicId).forEach(subTask -> epic.addSubTask(subTask.getId()));
                         if (isUpdated(exchange, manager.updateEpic(epic))) {
                             sendCreated(exchange);
                         }
