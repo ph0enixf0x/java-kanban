@@ -1,16 +1,27 @@
 package ru.yandex.practicum.server;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import ru.yandex.practicum.manager.TaskManager;
+import ru.yandex.practicum.server.adapters.DurationAdapter;
+import ru.yandex.practicum.server.adapters.LocalDateTimeAdapter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public abstract class BaseHandler {
     protected TaskManager manager;
+    protected Gson gson;
 
     public BaseHandler(TaskManager manager) {
         this.manager = manager;
+        this.gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .registerTypeAdapter(Duration.class, new DurationAdapter())
+                .create();
     }
 
     protected void sendText(HttpExchange exchange, String body) throws IOException {

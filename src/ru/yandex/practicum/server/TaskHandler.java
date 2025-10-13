@@ -1,20 +1,14 @@
 package ru.yandex.practicum.server;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import ru.yandex.practicum.manager.TaskManager;
-import ru.yandex.practicum.server.adapters.DurationAdapter;
-import ru.yandex.practicum.server.adapters.LocalDateTimeAdapter;
 import ru.yandex.practicum.tasks.Epic;
 import ru.yandex.practicum.tasks.SubTask;
 import ru.yandex.practicum.tasks.Task;
 import ru.yandex.practicum.tasks.TaskStatus;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public class TaskHandler extends BaseHandler implements HttpHandler {
@@ -24,10 +18,6 @@ public class TaskHandler extends BaseHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(Duration.class, new DurationAdapter())
-                .create();
         String requestUri = exchange.getRequestURI().toString();
         String method = exchange.getRequestMethod();
         String[] splitUri = requestUri.split("/");
@@ -188,8 +178,6 @@ public class TaskHandler extends BaseHandler implements HttpHandler {
                         sendMethodNotAllowed(exchange);
                 }
         }
-
-
     }
 
     private boolean isUpdated(HttpExchange exchange, int result) throws IOException {
