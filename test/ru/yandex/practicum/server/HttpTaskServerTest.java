@@ -391,4 +391,98 @@ class HttpTaskServerTest {
         assertEquals(404, response.statusCode(),
                 "Код ответа при получении несуществующей подзадачи отличается от ожидаемого");
     }
+
+    @Test
+    void checkUserEndpoints() throws IOException, InterruptedException  {
+        String task1Json = """
+                {
+                \t"name": "Первая задача",
+                \t"description": "Описание первой задачи",
+                \t"startTime": "2025-10-12T14:45:22",
+                \t"duration": 60
+                }""";
+        String task2Json = """
+                {
+                \t"name": "Первая задача",
+                \t"description": "Описание первой задачи",
+                \t"startTime": "2025-10-13T14:45:22",
+                \t"duration": 60
+                }""";
+
+        client.send(HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(task1Json))
+                .uri(URI.create(host + "tasks"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+
+        client.send(HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(task2Json))
+                .uri(URI.create(host + "tasks"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+
+        client.send(HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(host + "tasks/2"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+
+        client.send(HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(host + "tasks/1"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+
+        HttpResponse<String> response = client.send(HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(host + "history"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode(),
+                "Код ответа при получении задачи по идентификатору отличается от ожидаемого");
+        assertEquals("[" +
+                        "{\"id\":2," +
+                        "\"name\":\"Первая задача\"," +
+                        "\"description\":\"Описание первой задачи\"," +
+                        "\"status\":\"NEW\"," +
+                        "\"startTime\":\"2025-10-13T14:45:22\"," +
+                        "\"duration\":60}," +
+                        "{\"id\":1," +
+                        "\"name\":\"Первая задача\"," +
+                        "\"description\":\"Описание первой задачи\"," +
+                        "\"status\":\"NEW\"," +
+                        "\"startTime\":\"2025-10-12T14:45:22\"," +
+                        "\"duration\":60}" +
+                        "]", response.body(),
+                "Возвращенная история отличается от ожидаемой");
+
+        response = client.send(HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(host + "prioritized"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode(),
+                "Код ответа при получении задачи по идентификатору отличается от ожидаемого");
+        assertEquals("[" +
+                        "{\"id\":1," +
+                        "\"name\":\"Первая задача\"," +
+                        "\"description\":\"Описание первой задачи\"," +
+                        "\"status\":\"NEW\"," +
+                        "\"startTime\":\"2025-10-12T14:45:22\"," +
+                        "\"duration\":60}," +
+                        "{\"id\":2," +
+                        "\"name\":\"Первая задача\"," +
+                        "\"description\":\"Описание первой задачи\"," +
+                        "\"status\":\"NEW\"," +
+                        "\"startTime\":\"2025-10-13T14:45:22\"," +
+                        "\"duration\":60}" +
+                        "]", response.body(),
+                "Возвращенная история отличается от ожидаемой");
+    }
 }
