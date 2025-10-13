@@ -2,6 +2,7 @@ package ru.yandex.practicum.manager;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import ru.yandex.practicum.exception.NotFoundException;
 import ru.yandex.practicum.tasks.Epic;
 import ru.yandex.practicum.tasks.SubTask;
 import ru.yandex.practicum.tasks.Task;
@@ -11,7 +12,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 abstract class TaskManagerTest<T extends TaskManager>
 {
@@ -96,9 +96,12 @@ abstract class TaskManagerTest<T extends TaskManager>
         manager.deleteEpicById(epicId);
         manager.deleteTaskById(taskId);
 
-        assertNull(manager.getTaskById(taskId), "Задача должна быть удалена");
-        assertNull(manager.getEpicById(epicId), "Эпик должен быть удален");
-        assertNull(manager.getSubTaskById(subtaskId), "Подзадача должна быть удалена");
+        assertThrows(NotFoundException.class, () -> manager.getTaskById(taskId),
+                "Задача должна быть удалена");
+        assertThrows(NotFoundException.class, () -> manager.getEpicById(epicId),
+                "Эпик должен быть удален");
+        assertThrows(NotFoundException.class, () -> manager.getSubTaskById(subtaskId),
+                "Подзадача должна быть удалена");
     }
 
     @Test
