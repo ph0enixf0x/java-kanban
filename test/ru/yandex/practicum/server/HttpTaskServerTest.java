@@ -267,4 +267,120 @@ class HttpTaskServerTest {
         assertEquals(404, response.statusCode(),
                 "Код ответа при запросе несуществующего эпика отличается от ожидаемого");
     }
+
+    @Test
+    void checkSubtasksEndpoint() throws IOException, InterruptedException {
+        String epicJson = "{\n" +
+                "\t\"name\": \"Эпик один\",\n" +
+                "\t\"description\": \"Первый Эпик\"\n" +
+                "}";
+        String subtaskJson = "{\n" +
+                "\t\"epicId\": 1,\n" +
+                "\t\"name\": \"Подзадача один\",\n" +
+                "\t\"description\": \"Первая подзадача первого эпика\",\n" +
+                "\t\"startTime\": \"2025-10-16T16:24:59\",\n" +
+                "\t\"duration\": 120\n" +
+                "}";
+        String updatedSubtaskJson = "{\n" +
+                "\t\"id\": 2,\n" +
+                "\t\"epicId\": 1,\n" +
+                "\t\"name\": \"Новое название первой подзадачи\",\n" +
+                "\t\"description\": \"Новое описание первой подзадачи\",\n" +
+                "\t\"status\": \"IN_PROGRESS\",\n" +
+                "\t\"startTime\": \"2025-10-17T16:24:59\",\n" +
+                "\t\"duration\": 60\n" +
+                "}";
+
+        HttpResponse<String> response = client.send(HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(epicJson))
+                .uri(URI.create(host + "epics"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, response.statusCode(),
+                "Код ответа при создании нового эпика отличается от ожидаемого");
+
+        response = client.send(HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(subtaskJson))
+                .uri(URI.create(host + "subtasks"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, response.statusCode(),
+                "Код ответа при создании новой подзадачи отличается от ожидаемого");
+
+        response = client.send(HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(subtaskJson))
+                .uri(URI.create(host + "subtasks"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(406, response.statusCode(),
+                "Код ответа при попытке создания пересекающейся подзадачи отличается от ожидаемого");
+
+        response = client.send(HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(host + "subtasks"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode(),
+                "Код ответа при получении созданных подзадач отличается от ожидаемого");
+        assertEquals("[{" +
+                        "\"epicId\":1," +
+                        "\"id\":2," +
+                        "\"name\":\"Подзадача один\"," +
+                        "\"description\":\"Первая подзадача первого эпика\"," +
+                        "\"status\":\"NEW\"," +
+                        "\"startTime\":\"2025-10-16T16:24:59\"," +
+                        "\"duration\":120}" +
+                        "]", response.body(),
+                "Возвращенная подзадача отличается от ожидаемой");
+
+        response = client.send(HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(updatedSubtaskJson))
+                .uri(URI.create(host + "subtasks"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, response.statusCode(),
+                "Код ответа при обновлении подзадачи отличается от ожидаемого");
+
+        response = client.send(HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(host + "subtasks/2"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode(),
+                "Код ответа при получении подзадачи по идентификатору отличается от ожидаемого");
+        assertEquals("{" +
+                        "\"epicId\":1," +
+                        "\"id\":2," +
+                        "\"name\":\"Новое название первой подзадачи\"," +
+                        "\"description\":\"Новое описание первой подзадачи\"," +
+                        "\"status\":\"IN_PROGRESS\"," +
+                        "\"startTime\":\"2025-10-17T16:24:59\"," +
+                        "\"duration\":60" +
+                        "}", response.body(),
+                "Возвращенная подзадача отличается от ожидаемой");
+
+        response = client.send(HttpRequest.newBuilder()
+                .DELETE()
+                .uri(URI.create(host + "subtasks/2"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode(),
+                "Код ответа при удалении подзадачи отличается от ожидаемого");
+
+        response = client.send(HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(host + "subtasks/2"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(404, response.statusCode(),
+                "Код ответа при получении несуществующей подзадачи отличается от ожидаемого");
+    }
 }
