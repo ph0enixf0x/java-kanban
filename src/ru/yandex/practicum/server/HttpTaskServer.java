@@ -23,7 +23,7 @@ public class HttpTaskServer {
             server.createContext("/prioritized", userHandler);
 
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("Что то пошло не так при работе сервера!");
             e.getStackTrace();
         }
