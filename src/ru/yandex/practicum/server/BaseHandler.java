@@ -46,7 +46,7 @@ public abstract class BaseHandler {
         exchange.sendResponseHeaders(201, -1);
         exchange.close();
     }
-    
+
     protected void sendOk(HttpExchange exchange) throws IOException {
         exchange.sendResponseHeaders(200, -1);
         exchange.close();
