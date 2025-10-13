@@ -24,14 +24,13 @@ public class TaskHandler extends BaseHandler implements HttpHandler {
         String endpoint = splitUri[1];
 
         int taskId = 0;
-        boolean haveId = splitUri.length > 2;
-        if (haveId) taskId = Integer.parseInt(splitUri[2]);
+        if (splitUri.length > 2) taskId = Integer.parseInt(splitUri[2]);
 
         switch (endpoint) {
             case "tasks":
                 switch (method) {
                     case "GET":
-                        if (haveId) {
+                        if (taskId != 0) {
                             Task task = manager.getTaskById(taskId);
                             System.out.println(task);
                             if (task == null) {
@@ -81,7 +80,7 @@ public class TaskHandler extends BaseHandler implements HttpHandler {
             case "subtasks":
                 switch (method) {
                     case "GET":
-                        if (haveId) {
+                        if (taskId != 0) {
                             SubTask subtask = manager.getSubTaskById(taskId);
                             if (subtask == null) {
                                 sendNotFound(exchange);
@@ -130,13 +129,13 @@ public class TaskHandler extends BaseHandler implements HttpHandler {
             case "epics":
                 switch (method) {
                     case "GET":
-                        if (haveId) {
+                        if (taskId != 0) {
                             Epic epic = manager.getEpicById(taskId);
                             if (epic == null) {
                                 sendNotFound(exchange);
                                 return;
                             }
-                            if (splitUri.length == 4) {
+                            if (splitUri[3].equals("subtasks")) {
                                 sendText(exchange, gson.toJson(manager.getEpicSubTasks(taskId)));
                                 return;
                             }
