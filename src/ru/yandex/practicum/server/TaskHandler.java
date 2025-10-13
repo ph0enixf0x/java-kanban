@@ -21,11 +21,13 @@ public class TaskHandler extends BaseHandler implements HttpHandler {
         String requestUri = exchange.getRequestURI().toString();
         String method = exchange.getRequestMethod();
         String[] splitUri = requestUri.split("/");
+        String endpoint = splitUri[1];
+
         int taskId = 0;
         boolean haveId = splitUri.length > 2;
         if (haveId) taskId = Integer.parseInt(splitUri[2]);
 
-        switch (splitUri[1]) {
+        switch (endpoint) {
             case "tasks":
                 switch (method) {
                     case "GET":
