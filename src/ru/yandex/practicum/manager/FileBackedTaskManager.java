@@ -61,45 +61,39 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public int updateTask(Task task) {
-        int result = super.updateTask(task);
+    public void updateTask(Task task) {
+        super.updateTask(task);
         save();
-        return result;
     }
 
     @Override
-    public int updateEpic(Epic epic) {
-        int result = super.updateEpic(epic);
+    public void updateEpic(Epic epic) {
+        super.updateEpic(epic);
         save();
-        return result;
     }
 
     @Override
-    public int updateSubTask(SubTask subTask) {
-        int result = super.updateSubTask(subTask);
+    public void updateSubTask(SubTask subTask) {
+        super.updateSubTask(subTask);
         save();
-        return result;
     }
 
     @Override
-    public int deleteTaskById(int taskId) {
-        int result = super.deleteTaskById(taskId);
+    public void deleteTaskById(int taskId) {
+        super.deleteTaskById(taskId);
         save();
-        return result;
     }
 
     @Override
-    public int deleteEpicById(int epicId) {
-        int result = super.deleteEpicById(epicId);
+    public void deleteEpicById(int epicId) {
+        super.deleteEpicById(epicId);
         save();
-        return result;
     }
 
     @Override
-    public int deleteSubTaskById(int subTaskId) {
-        int result = super.deleteSubTaskById(subTaskId);
+    public void deleteSubTaskById(int subTaskId) {
+        super.deleteSubTaskById(subTaskId);
         save();
-        return result;
     }
 
     public File getSaveFile() {
