@@ -7,7 +7,7 @@ import ru.yandex.practicum.tasks.Epic;
 
 import java.io.IOException;
 
-public class EpicHandler extends BaseHandler{
+public class EpicHandler extends BaseHandler {
     public EpicHandler(TaskManager manager) {
         super(manager);
     }
