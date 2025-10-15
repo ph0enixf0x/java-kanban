@@ -110,8 +110,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public int createTask(Task task) {
         if (isBlockedByOtherTasks(task)) {
-            System.out.println("Время новой задачи пересекается с другими задачами. Создание прервано");
-            return 0;
+            throw new HaveOverlapsException("Время новой задачи пересекается с другими задачами. Создание прервано");
         }
         int taskId = taskCounter;
         task.setId(taskId);
