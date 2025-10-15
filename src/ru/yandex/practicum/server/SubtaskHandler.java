@@ -59,6 +59,7 @@ public class SubtaskHandler extends  BaseHandler {
                 return;
             }
             manager.updateSubTask(subtask);
+            sendCreated(exchange);
         } catch (HaveOverlapsException e) {
             System.out.println(e.getMessage());
             sendHasOverlaps(exchange);

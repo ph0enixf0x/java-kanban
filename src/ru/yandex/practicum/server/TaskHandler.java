@@ -59,6 +59,7 @@ public class TaskHandler extends BaseHandler {
                 return;
             }
             manager.updateTask(task);
+            sendCreated(exchange);
         } catch (HaveOverlapsException e) {
             System.out.println(e.getMessage());
             sendHasOverlaps(exchange);
