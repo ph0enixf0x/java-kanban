@@ -13,12 +13,11 @@ public class HttpTaskServer {
         try {
             HttpServer server = start();
             TaskManager manager = new Managers().getDefault();
-            TaskHandler taskHandler = new TaskHandler(manager);
             UserHandler userHandler = new UserHandler(manager);
 
-            server.createContext("/tasks", taskHandler);
-            server.createContext("/subtasks", taskHandler);
-            server.createContext("/epics", taskHandler);
+            server.createContext("/tasks", new TaskHandler(manager));
+            server.createContext("/subtasks", new SubtaskHandler(manager));
+            server.createContext("/epics", new EpicHandler(manager));
             server.createContext("/history", userHandler);
             server.createContext("/prioritized", userHandler);
 
