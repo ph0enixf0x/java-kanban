@@ -22,11 +22,19 @@ public class TaskHandler extends BaseHandler {
         int taskId = 0;
         if (splitUri.length > 2) taskId = Integer.parseInt(splitUri[2]);
 
-        switch (method) {
-            case "GET" -> tasksGet(exchange, taskId);
-            case "POST" -> tasksPost(exchange);
-            case "DELETE" -> tasksDelete(exchange, taskId);
-            default -> sendMethodNotAllowed(exchange);
+        try {
+            switch (method) {
+                case "GET" -> tasksGet(exchange, taskId);
+                case "POST" -> tasksPost(exchange);
+                case "DELETE" -> tasksDelete(exchange, taskId);
+                default -> sendMethodNotAllowed(exchange);
+            }
+        } catch (NotFoundException e) {
+            System.out.println(e.getMessage());
+            sendNotFound(exchange);
+        } catch (HaveOverlapsException e) {
+            System.out.println(e.getMessage());
+            sendHasOverlaps(exchange);
         }
     }
 
@@ -35,12 +43,7 @@ public class TaskHandler extends BaseHandler {
             sendText(exchange, gson.toJson(manager.getTasks()));
             return;
         }
-        try {
-            sendText(exchange, gson.toJson(manager.getTaskById(taskId)));
-        } catch (NotFoundException e) {
-            System.out.println(e.getMessage());
-            sendNotFound(exchange);
-        }
+        sendText(exchange, gson.toJson(manager.getTaskById(taskId)));
     }
 
     void tasksPost(HttpExchange exchange) throws IOException {
@@ -52,30 +55,17 @@ public class TaskHandler extends BaseHandler {
         Task task = gson.fromJson(body, Task.class);
         if (task.getStatus() == null) task.setStatus(TaskStatus.NEW);
 
-        try {
-            if (task.getId() == 0) {
-                manager.createTask(task);
-                sendCreated(exchange);
-                return;
-            }
-            manager.updateTask(task);
+        if (task.getId() == 0) {
+            manager.createTask(task);
             sendCreated(exchange);
-        } catch (HaveOverlapsException e) {
-            System.out.println(e.getMessage());
-            sendHasOverlaps(exchange);
-        } catch (NotFoundException e) {
-            System.out.println(e.getMessage());
-            sendNotFound(exchange);
+            return;
         }
+        manager.updateTask(task);
+        sendCreated(exchange);
     }
 
     void tasksDelete(HttpExchange exchange, int taskId) throws IOException {
-        try {
-            manager.deleteTaskById(taskId);
-            sendOk(exchange);
-        } catch (NotFoundException e) {
-            System.out.println(e.getMessage());
-            sendOk(exchange);
-        }
+        manager.deleteTaskById(taskId);
+        sendOk(exchange);
     }
 }

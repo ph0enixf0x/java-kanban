@@ -1,6 +1,7 @@
 package ru.yandex.practicum.server;
 
 import com.sun.net.httpserver.HttpExchange;
+import ru.yandex.practicum.exception.HaveOverlapsException;
 import ru.yandex.practicum.exception.NotFoundException;
 import ru.yandex.practicum.manager.TaskManager;
 import ru.yandex.practicum.tasks.Epic;
@@ -20,12 +21,20 @@ public class EpicHandler extends BaseHandler {
         int taskId = 0;
         if (splitUri.length > 2) taskId = Integer.parseInt(splitUri[2]);
 
-        switch (method) {
-            case "GET" -> epicsGet(exchange, taskId,
-                    splitUri.length == 4 && splitUri[3].equals("subtasks"));
-            case "POST" -> epicsPost(exchange);
-            case "DELETE" -> epicsDelete(exchange, taskId);
-            default -> sendMethodNotAllowed(exchange);
+        try {
+            switch (method) {
+                case "GET" -> epicsGet(exchange, taskId,
+                        splitUri.length == 4 && splitUri[3].equals("subtasks"));
+                case "POST" -> epicsPost(exchange);
+                case "DELETE" -> epicsDelete(exchange, taskId);
+                default -> sendMethodNotAllowed(exchange);
+            }
+        } catch (NotFoundException e) {
+            System.out.println(e.getMessage());
+            sendNotFound(exchange);
+        } catch (HaveOverlapsException e) {
+            System.out.println(e.getMessage());
+            sendHasOverlaps(exchange);
         }
     }
 
@@ -34,17 +43,12 @@ public class EpicHandler extends BaseHandler {
             sendText(exchange, gson.toJson(manager.getEpics()));
             return;
         }
-        try {
-            Epic epic = manager.getEpicById(taskId);
-            if (isSubtasksRequest) {
-                sendText(exchange, gson.toJson(manager.getEpicSubTasks(taskId)));
-                return;
-            }
-            sendText(exchange, gson.toJson(epic));
-        } catch (NotFoundException e) {
-            System.out.println(e.getMessage());
-            sendNotFound(exchange);
+        Epic epic = manager.getEpicById(taskId);
+        if (isSubtasksRequest) {
+            sendText(exchange, gson.toJson(manager.getEpicSubTasks(taskId)));
+            return;
         }
+        sendText(exchange, gson.toJson(epic));
     }
 
     void epicsPost(HttpExchange exchange) throws IOException {
@@ -59,12 +63,7 @@ public class EpicHandler extends BaseHandler {
     }
 
     void epicsDelete(HttpExchange exchange, int taskId) throws IOException {
-        try {
-            manager.deleteEpicById(taskId);
-            sendOk(exchange);
-        } catch (NotFoundException e) {
-            System.out.println(e.getMessage());
-            sendOk(exchange);
-        }
+        manager.deleteEpicById(taskId);
+        sendOk(exchange);
     }
 }
