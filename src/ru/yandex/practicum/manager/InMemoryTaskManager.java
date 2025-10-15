@@ -134,18 +134,16 @@ public class InMemoryTaskManager implements TaskManager {
         int subTaskId = taskCounter;
         int epicId = subTask.getEpicId();
         if (subTaskId == epicId) {
-            System.out.println("Идентификатор подзадачи равен указанному идентификатору связанного эпика. " +
-                    "Создание прервано");
-            return 0;
+            throw new HaveOverlapsException("Идентификатор подзадачи равен указанному идентификатору связанного" +
+                    " эпика. Создание прервано");
         }
         if (!isExistingTask("Epic", epicId)) {
-            System.out.println("Указанного в подзадаче эпика с идентификатором " + epicId + " не существует. " +
-                    "Создание прервано");
-            return 0;
+            throw new NotFoundException("Указанного в подзадаче эпика с идентификатором " + epicId + " не " +
+                    "существует. Создание прервано");
         }
         if (isBlockedByOtherTasks(subTask)) {
             System.out.println("Время новой подзадачи пересекается с другими задачами. Создание прервано");
-            return 0;
+            throw new HaveOverlapsException("Время новой подзадачи пересекается с другими задачами. Создание прервано");
         }
         subTask.setId(subTaskId);
         subTasks.put(subTaskId, subTask);
@@ -336,9 +334,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private boolean isBlockedByOtherTasks(Task task) {
-        return getPrioritizedTasks()
-                .stream()
-                .filter(pTask -> !pTask.equals(task))
-                .anyMatch(pTask -> isOverlapped(pTask, task));
+        if (task.getStartTime() != null) {
+            return getPrioritizedTasks()
+                    .stream()
+                    .filter(pTask -> !pTask.equals(task))
+                    .anyMatch(pTask -> isOverlapped(pTask, task));
+        }
+        return false;
     }
 }
