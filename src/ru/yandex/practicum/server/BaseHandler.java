@@ -6,7 +6,9 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import ru.yandex.practicum.manager.TaskManager;
 import ru.yandex.practicum.server.adapters.DurationAdapter;
+import ru.yandex.practicum.server.adapters.EpicDeserializer;
 import ru.yandex.practicum.server.adapters.LocalDateTimeAdapter;
+import ru.yandex.practicum.tasks.Epic;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +24,7 @@ public abstract class BaseHandler implements HttpHandler {
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .registerTypeAdapter(Duration.class, new DurationAdapter())
+                .registerTypeAdapter(Epic.class, new EpicDeserializer())
                 .create();
     }
 
