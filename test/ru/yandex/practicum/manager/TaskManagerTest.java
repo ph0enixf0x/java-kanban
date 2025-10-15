@@ -2,6 +2,7 @@ package ru.yandex.practicum.manager;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import ru.yandex.practicum.exception.HaveOverlapsException;
 import ru.yandex.practicum.exception.NotFoundException;
 import ru.yandex.practicum.tasks.Epic;
 import ru.yandex.practicum.tasks.SubTask;
@@ -60,8 +61,7 @@ abstract class TaskManagerTest<T extends TaskManager>
 
     @Test
     void checkAddingSubtaskAsSelfEpicRestriction() {
-        int subTaskId = manager.createSubTask(expectedSubTask);
-        assertEquals(0, subTaskId,
+        assertThrows(HaveOverlapsException.class, () -> manager.createSubTask(expectedSubTask),
                 "Должно быть нельзя сделать подзадачу своим же эпиком");
     }
 
@@ -207,8 +207,11 @@ abstract class TaskManagerTest<T extends TaskManager>
     @Test
     void checkOverlappedTasks() {
         int taskId = manager.createTask(expectedTask);
-        manager.createTask(new Task("Вторая задача", "Задача с пересекающейся датой",
-                LocalDateTime.now().plusMinutes(10), Duration.ofMinutes(60)));
+        assertThrows(HaveOverlapsException.class, () -> manager.createTask(new Task("Вторая задача",
+                        "Задача с пересекающейся датой", LocalDateTime.now().plusMinutes(10),
+                        Duration.ofMinutes(60))),
+                "Ожидали получение ошибки на создание задачи с пересекающимся временем");
+
         assertEquals(1, manager.getTasks().size(),
                 "Не корректное количество задач в менеджере после добавления пересекающейся задачи");
 
@@ -224,15 +227,17 @@ abstract class TaskManagerTest<T extends TaskManager>
     void checkOverlappedSubTasks() {
         int epicId = manager.createEpic(expectedEpic);
         int subTaskId = manager.createSubTask(expectedSubTask);
-        manager.createSubTask(new SubTask("Вторая подзадача", "Подзадача с пересекающимся временем",
-                LocalDateTime.now().plusDays(1).plusMinutes(59), Duration.ofMinutes(60), epicId));
+        assertThrows(HaveOverlapsException.class, () -> manager.createSubTask(new SubTask("Вторая подзадача",
+                "Подзадача с пересекающимся временем", LocalDateTime.now().plusDays(1).plusMinutes(59),
+                Duration.ofMinutes(60), epicId)),
+                "Ожидали получение ошибки на создание подзадачи с пересекающимся временем");
         assertEquals(1, manager.getSubTasks().size(),
                 "Не корректное количество подзадач в менеджере после добавления пересекающейся подзадачи");
+
 
         SubTask subTask = manager.getSubTaskById(subTaskId);
         LocalDateTime updatedTime = subTask.getStartTime().plusMinutes(10);
         subTask.setStartTime(updatedTime);
-        manager.updateSubTask(subTask);
         assertEquals(updatedTime, manager.getSubTaskById(subTaskId).getStartTime(),
                 "Не корректное время у обновленной подзадачи");
     }

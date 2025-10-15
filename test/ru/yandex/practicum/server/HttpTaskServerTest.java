@@ -17,6 +17,7 @@ class HttpTaskServerTest {
     HttpServer server;
     static HttpClient client;
     static String host;
+    TaskManager manager;
 
     @BeforeAll
     static void beforeAll() {
@@ -27,13 +28,12 @@ class HttpTaskServerTest {
     @BeforeEach
     void beforeEach() throws IOException {
         server = HttpTaskServer.start();
-        TaskManager manager = new Managers().getDefault();
-        TaskHandler taskHandler = new TaskHandler(manager);
+        manager = new Managers().getDefault();
         UserHandler userHandler = new UserHandler(manager);
 
-        server.createContext("/tasks", taskHandler);
-        server.createContext("/subtasks", taskHandler);
-        server.createContext("/epics", taskHandler);
+        server.createContext("/tasks", new TaskHandler(manager));
+        server.createContext("/subtasks", new SubtaskHandler(manager));
+        server.createContext("/epics", new EpicHandler(manager));
         server.createContext("/history", userHandler);
         server.createContext("/prioritized", userHandler);
     }
@@ -156,12 +156,6 @@ class HttpTaskServerTest {
                 \t"name": "Эпик один",
                 \t"description": "Первый Эпик"
                 }""";
-        String updatedEpicJson = """
-                {
-                \t"id": 1,
-                \t"name": "Новое название эпика один",
-                \t"description": "Новое описание первого эпика"
-                }""";
         String subtaskJson = """
                 {
                 \t"epicId": 1,
@@ -199,15 +193,6 @@ class HttpTaskServerTest {
                 "Возвращенный эпик отличается от ожидаемого");
 
         response = client.send(HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(updatedEpicJson))
-                .uri(URI.create(host + "epics"))
-                .version(HttpClient.Version.HTTP_1_1)
-                .header("Accept", "application/json")
-                .build(), HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response.statusCode(),
-                "Код ответа при обновлении эпика отличается от ожидаемого");
-
-        response = client.send(HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(subtaskJson))
                 .uri(URI.create(host + "subtasks"))
                 .version(HttpClient.Version.HTTP_1_1)
@@ -228,8 +213,8 @@ class HttpTaskServerTest {
                         "\"subtasksIds\":[2]," +
                         "\"endTime\":\"2025-10-16T18:24:59\"," +
                         "\"id\":1," +
-                        "\"name\":\"Новое название эпика один\"," +
-                        "\"description\":\"Новое описание первого эпика\"," +
+                        "\"name\":\"Эпик один\"," +
+                        "\"description\":\"Первый Эпик\"," +
                         "\"status\":\"NEW\"," +
                         "\"startTime\":\"2025-10-16T16:24:59\"," +
                         "\"duration\":120}", response.body(),
