@@ -38,7 +38,7 @@ public class TaskHandler extends BaseHandler {
         }
     }
 
-    void tasksGet(HttpExchange exchange, int taskId) throws IOException {
+    private void tasksGet(HttpExchange exchange, int taskId) throws IOException {
         if (taskId == 0) {
             sendText(exchange, gson.toJson(manager.getTasks()));
             return;
@@ -46,7 +46,7 @@ public class TaskHandler extends BaseHandler {
         sendText(exchange, gson.toJson(manager.getTaskById(taskId)));
     }
 
-    void tasksPost(HttpExchange exchange) throws IOException {
+    private void tasksPost(HttpExchange exchange) throws IOException {
         String body = new String(exchange.getRequestBody().readAllBytes());
         if (body.isBlank()) {
             sendInternalError(exchange);
@@ -64,7 +64,7 @@ public class TaskHandler extends BaseHandler {
         sendCreated(exchange);
     }
 
-    void tasksDelete(HttpExchange exchange, int taskId) throws IOException {
+    private void tasksDelete(HttpExchange exchange, int taskId) throws IOException {
         manager.deleteTaskById(taskId);
         sendOk(exchange);
     }

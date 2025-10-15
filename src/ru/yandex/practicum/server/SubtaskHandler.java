@@ -37,7 +37,7 @@ public class SubtaskHandler extends  BaseHandler {
         }
     }
 
-    void subtasksGet(HttpExchange exchange, int taskId) throws IOException {
+    private void subtasksGet(HttpExchange exchange, int taskId) throws IOException {
         if (taskId == 0) {
             sendText(exchange, gson.toJson(manager.getSubTasks()));
             return;
@@ -45,7 +45,7 @@ public class SubtaskHandler extends  BaseHandler {
         sendText(exchange, gson.toJson(manager.getSubTaskById(taskId)));
     }
 
-    void subtasksPost(HttpExchange exchange) throws IOException {
+    private void subtasksPost(HttpExchange exchange) throws IOException {
         String body = new String(exchange.getRequestBody().readAllBytes());
         if (body.isBlank()) {
             sendInternalError(exchange);
@@ -63,7 +63,7 @@ public class SubtaskHandler extends  BaseHandler {
         sendCreated(exchange);
     }
 
-    void subtasksDelete(HttpExchange exchange, int taskId) throws IOException {
+    private void subtasksDelete(HttpExchange exchange, int taskId) throws IOException {
         manager.deleteSubTaskById(taskId);
         sendOk(exchange);
     }

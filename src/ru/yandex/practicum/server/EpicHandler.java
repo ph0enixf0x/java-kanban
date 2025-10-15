@@ -38,7 +38,7 @@ public class EpicHandler extends BaseHandler {
         }
     }
 
-    void epicsGet(HttpExchange exchange, int taskId, boolean isSubtasksRequest) throws IOException {
+    private void epicsGet(HttpExchange exchange, int taskId, boolean isSubtasksRequest) throws IOException {
         if (taskId == 0) {
             sendText(exchange, gson.toJson(manager.getEpics()));
             return;
@@ -51,7 +51,7 @@ public class EpicHandler extends BaseHandler {
         sendText(exchange, gson.toJson(epic));
     }
 
-    void epicsPost(HttpExchange exchange) throws IOException {
+    private void epicsPost(HttpExchange exchange) throws IOException {
         String body = new String(exchange.getRequestBody().readAllBytes());
         if (body.isBlank()) {
             sendInternalError(exchange);
@@ -62,7 +62,7 @@ public class EpicHandler extends BaseHandler {
         sendCreated(exchange);
     }
 
-    void epicsDelete(HttpExchange exchange, int taskId) throws IOException {
+    private void epicsDelete(HttpExchange exchange, int taskId) throws IOException {
         manager.deleteEpicById(taskId);
         sendOk(exchange);
     }
