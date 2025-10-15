@@ -48,8 +48,12 @@ public class EpicHandler extends BaseHandler{
     }
 
     void epicsPost(HttpExchange exchange) throws IOException {
-        Epic epic = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()),
-                Epic.class);
+        String body = new String(exchange.getRequestBody().readAllBytes());
+        if (body.isBlank()) {
+            sendInternalError(exchange);
+            return;
+        }
+        Epic epic = gson.fromJson(body, Epic.class);
         manager.createEpic(epic);
         sendCreated(exchange);
     }

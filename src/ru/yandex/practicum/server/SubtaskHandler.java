@@ -44,11 +44,13 @@ public class SubtaskHandler extends  BaseHandler {
     }
 
     void subtasksPost(HttpExchange exchange) throws IOException {
-        SubTask subtask = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()),
-                SubTask.class);
+        String body = new String(exchange.getRequestBody().readAllBytes());
+        if (body.isBlank()) {
+            sendInternalError(exchange);
+            return;
+        }
+        SubTask subtask = gson.fromJson(body, SubTask.class);
         if (subtask.getStatus() == null) subtask.setStatus(TaskStatus.NEW);
-        System.out.println(subtask.getStartTime());
-        System.out.println(subtask.getDuration());
 
         try {
             if (subtask.getId() == 0) {

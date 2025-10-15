@@ -61,4 +61,9 @@ public abstract class BaseHandler implements HttpHandler {
         exchange.sendResponseHeaders(405, -1);
         exchange.close();
     }
+
+    protected void sendInternalError(HttpExchange exchange) throws IOException {
+        exchange.sendResponseHeaders(500, -1);
+        exchange.close();
+    }
 }
