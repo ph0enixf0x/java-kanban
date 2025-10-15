@@ -25,7 +25,6 @@ public class HttpTaskServer {
 
         } catch (Exception e) {
             System.out.println("Что то пошло не так при работе сервера!");
-            e.getStackTrace();
         }
     }
 
