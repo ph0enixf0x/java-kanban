@@ -1,12 +1,11 @@
 package ru.yandex.practicum.server;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import ru.yandex.practicum.manager.TaskManager;
 
 import java.io.IOException;
 
-public class UserHandler extends BaseHandler implements HttpHandler {
+public class UserHandler extends BaseHandler {
     public UserHandler(TaskManager manager) {
         super(manager);
     }

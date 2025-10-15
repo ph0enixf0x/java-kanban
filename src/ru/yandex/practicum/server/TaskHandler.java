@@ -1,7 +1,6 @@
 package ru.yandex.practicum.server;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import ru.yandex.practicum.exception.NotFoundException;
 import ru.yandex.practicum.manager.TaskManager;
 import ru.yandex.practicum.tasks.Epic;
@@ -11,7 +10,7 @@ import ru.yandex.practicum.tasks.TaskStatus;
 
 import java.io.IOException;
 
-public class TaskHandler extends BaseHandler implements HttpHandler {
+public class TaskHandler extends BaseHandler {
     public TaskHandler(TaskManager manager) {
         super(manager);
     }

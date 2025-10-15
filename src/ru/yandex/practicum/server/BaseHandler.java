@@ -3,6 +3,7 @@ package ru.yandex.practicum.server;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 import ru.yandex.practicum.manager.TaskManager;
 import ru.yandex.practicum.server.adapters.DurationAdapter;
 import ru.yandex.practicum.server.adapters.LocalDateTimeAdapter;
@@ -12,11 +13,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public abstract class BaseHandler {
+public abstract class BaseHandler implements HttpHandler {
     protected TaskManager manager;
     protected Gson gson;
 
-    public BaseHandler(TaskManager manager) {
+    public BaseHandler(TaskManager manager)  {
         this.manager = manager;
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
